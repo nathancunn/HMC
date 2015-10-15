@@ -36,7 +36,7 @@ HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) 
       oldq=qtandepsilon;
     #Metropolis Hastings, if accepted move to new state
     }
-    Samples[k]=oldq
+    Samples[k] <- oldq
     #Samples
     #forget Intialisation
   }
