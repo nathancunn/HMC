@@ -1,8 +1,9 @@
 library(MASS)
-HMC1= function(TotalSamples, density , q,M=diag(length(q)),epsilon,L, densitydiff="NaN", burnin) {
+HMCVer1= function(TotalSamples, density , q,M,epsilon,L, densitydiff, burnin) {
   oldq=q; #Initialisation of q
   d=length(q); #Dimensions
-  MassVector=colSums(M); #Mass Of particles
+  #MassVector=colSums(M); #Mass Of particles
+  MassVector=1
   N=TotalSamples+burnin; #How many samples will be needed
   Samples=matrix(0,N,2*d);
   #For allocation of memory
@@ -36,7 +37,7 @@ HMC1= function(TotalSamples, density , q,M=diag(length(q)),epsilon,L, densitydif
     }
     Samples[k,]=rbind(oldp,oldq)
     #Samples
-    Samples[(burnin+1:N),]
     #forget Intialisation
   }
+  return(Samples[(burnin+1:N),])
 }
