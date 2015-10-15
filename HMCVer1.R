@@ -1,4 +1,5 @@
 library(MASS)
+library(mvtnorm)
 HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) {
   RejectTotal=0;
   oldq <-qtandepsilon <- q #Initialisation of q and qtandepsilon
@@ -14,11 +15,13 @@ HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) 
     #Take one momentum vector.
     for (t in 1:L){
       #LeapFrog L times with step size epsilon
-      ptplusepsilonhalf= ptplusepsilon - (epsilon/2)*densitydiff(qtandepsilon)
-      qtandepsilon =  qtandepsilon + ((epsilon/MassVector)*ptplusepsilonhalf)
+      Glo<<- qtandepsilon;
+      ptplusepsilonhalf= ptplusepsilon - (epsilon/2)*as.vector(densitydiff(qtandepsilon));
+      qtandepsilon =  qtandepsilon + ((epsilon/MassVector)*ptplusepsilonhalf);
       #Assume independent in p vector hence use column sums
-      ptplusepsilon= ptplusepsilonhalf - (epsilon/2)*densitydiff(qtandepsilon)
+      ptplusepsilon= ptplusepsilonhalf - (epsilon/2)*as.vector(densitydiff(qtandepsilon));
     }
+    #oldq=as.vector(oldq);
     OldUenergy= -log(densityA(oldq));
     #Energy of target densityA at old state
     OldKenergy= sum((oldp^2/MassVector))/2;
@@ -26,7 +29,7 @@ HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) 
     OldHamiltonian= OldUenergy+OldKenergy;
     #Old Hamiltonian
     ProposeUenergy= -log(densityA(qtandepsilon));
-    ProposeKenergy=sum((ptplusepsilon^2/MassVector))/2;
+    ProposeKenergy=sum((ptplusepsilon^2)/MassVector)/2;
     #return(c(ProposeKenergy))
     #Propose Energy
     ProposeHamiltonian=ProposeUenergy+ProposeKenergy;
@@ -40,21 +43,23 @@ HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) 
     else {qtandepsilon=oldq;
     RejectTotal= RejectTotal+1;
     }
-    Samples[k] <- oldq
+    Samples[k,] <- oldq
     #Samples
     #forget Intialisation
   }
   cat("Total Samples after Burn in:",TotalSamples,"\nStep Size used was",epsilon,"\nLeapFrog iterations were",L,"\nMean Of Samples=",apply(Samples,2,mean),"\nCovariance=",cov(Samples), "\nRejectionRate=",RejectTotal/N)
-  hist(Samples[(burnin+1:N),],freq=F)
-  lines(seq(-4,4,0.01),dnorm(seq(-4,4,0.01)))
-  acf(Samples)
-  return(Samples[(burnin+1:N),])
+  #hist(Samples[((burnin+1):N),],freq=F)
+  plot(Samples[,1],Samples[,2],type='l',col=2)
+  points(Samples[,1],Samples[,2])
+  #lines(seq(-4,4,0.01),dnorm(seq(-4,4,0.01)))
+  #acf(Samples)
+  return(Samples[((burnin+1):N),])
 }
-JJ <- HMCVer1(TotalSamples = 10000,densityA = dnorm,M=1,q = 0,epsilon = 0.05,L = 20,densitydiff = function(x) x,burnin = 0)
+JJ <- HMCVer1(TotalSamples = 10000,densityA = dnorm,M=1,q = 0,epsilon = 0.05,L = 20,densitydiff = function(x) x,burnin = 100)
 
 
 # Multivariate example - needs work
-JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,c(0,0),matrix(c(1,0.7,0.7,1),2,2)),q = c(0,0),M=diag(length(q)),epsilon = 0.05,L = 60,densitydiff = function(x) t(t(x)%*%solve(matrix(c(1,0.7,0.7,1),2,2))), burnin = 0)
+JJ <- HMCVer1(TotalSamples = 5000,densityA = function(l) dmvnorm(l,c(0,0),matrix(c(1,0.9,0.9,1),2,2)),q = c(0,0),M=diag(length(q)),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(matrix(c(1,0.9,0.9,1),2,2))%*%as.matrix(x)}, burnin = 0)
 
 
 
