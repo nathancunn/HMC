@@ -1,12 +1,12 @@
 library(MASS)
-HMC1= function(TotalSamples, density, q,M=diag(length(q)),epsilon,L, densitydiff="NaN", burnin) {
+HMC1= function(TotalSamples, density , q,M=diag(length(q)),epsilon,L, densitydiff="NaN", burnin) {
   oldq=q; #Initialisation of q
   d=length(q); #Dimensions
   MassVector=colSums(M); #Mass Of particles
   N=TotalSamples+burnin; #How many samples will be needed
   Samples=matrix(0,N,2*d);
   #For allocation of memory
-  p=mvnorm(N,rep(0,d),M); 
+  p=mvrnorm(N,rep(0,d),M); 
   #Generate multivariate normal, this is an N by d quantity. I generate all at once here.
   H=runif(N);
   for (k in 1:N){
@@ -36,7 +36,7 @@ HMC1= function(TotalSamples, density, q,M=diag(length(q)),epsilon,L, densitydiff
     }
     Samples[k,]=rbind(oldp,oldq)
     #Samples
-    HMC1=Samples[(burnin+1:N),]
+    Samples[(burnin+1:N),]
     #forget Intialisation
   }
 }
