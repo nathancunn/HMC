@@ -1,5 +1,6 @@
 library(MASS)
 HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) {
+  RejectTotal=0;
   oldq <-qtandepsilon <- q #Initialisation of q and qtandepsilon
   d <- length(q) #Dimensions
   if(length(M)>1){MassVector <- colSums(M)} else MassVector <- M
@@ -36,17 +37,21 @@ HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) 
       oldq=qtandepsilon;
     #Metropolis Hastings, if accepted move to new state
     }
+    else {qtandepsilon=oldq;
+    RejectTotal= RejectTotal+1;
+    }
     Samples[k] <- oldq
     #Samples
     #forget Intialisation
   }
+  cat("Total Samples after Burn in:",TotalSamples,"\nStep Size used was",epsilon,"\nLeapFrog iterations were",L,"\nMean Of Samples=",apply(Samples,2,mean),"\nCovariance=",cov(Samples), "\nRejectionRate=",RejectTotal/N)
+  hist(Samples[(burnin+1:N),],freq=F)
+  lines(seq(-4,4,0.01),dnorm(seq(-4,4,0.01)))
+  acf(Samples)
   return(Samples[(burnin+1:N),])
 }
-
-
 JJ <- HMCVer1(TotalSamples = 10000,densityA = dnorm,M=1,q = 0,epsilon = 0.05,L = 20,densitydiff = function(x) x,burnin = 0)
-hist(JJ,freq=F)
-lines(seq(-4,4,0.01),dnorm(seq(-4,4,0.01)))
+
 
 # Multivariate example - needs work
 JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,c(0,0),matrix(c(1,0.7,0.7,1),2,2)),q = c(0,0),M=diag(length(q)),epsilon = 0.05,L = 60,densitydiff = function(x) t(t(x)%*%solve(matrix(c(1,0.7,0.7,1),2,2))), burnin = 0)
