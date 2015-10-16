@@ -83,9 +83,9 @@ out <- list()
 files <- list.files()
 maxdim <- 32 #allows for a 32*32 grid representing the letters
 seqn <- floor(seq(1,nrow(m),length=maxdim))
-ks <-c(2,4,5,3,4,6,4,4,4,4,4,4,3,3,5,5,3,3,2,2,3,3,3,3,2,2,5,4,3,3,4,6,4,3,4,7,
+ks <-c(2,4,5,3,4,6,4,4,4,4,4,4,3,3,5,5,3,3,2,2,3,3,3,3,2,2,5,4,3,3,4,5,4,3,4,5,
        2,5,5,5,3,2,3,3,2,2,4,4,2,2,3,3,3,3)
-for(i in 32:length(files)) {
+for(i in 2:6) {
   # Read in the image and convert it into a matrix
   img <- readJPEG(files[i])
   m <- as.raster(img, max = 255)
@@ -117,4 +117,6 @@ for(i in 32:length(files)) {
                 mu = gauss.mix$mu,
                 sigma = gauss.mix$sigma)
 }
+
+dput(out,file="../output")
 plot(coords[,1],coords[,2],col=coords[,3],asp=1)
