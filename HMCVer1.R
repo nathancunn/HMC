@@ -1,13 +1,14 @@
 library(MASS)
 library(mvtnorm)
 HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) {
+  epsilonFix=epsilon;
 #quartz()
 #Bring up window for plot
  # plot.new()
-#  plot.window(xlim=c(-3,3), ylim=c(-3,3))
+#  plot.window(xlim=c(515,545), ylim=c(515,545))
  # axis(side=1, pos=-3)
 #  axis(side=2,pos=-3)
- # title(main="Bivariate Normal Simulation")
+# title(main="Bivariate Normal Simulation")
   RejectTotal=0;
   oldq <-qtandepsilon <- q #Initialisation of q and qtandepsilon
   d <- length(q) #Dimensions
@@ -20,6 +21,7 @@ HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) 
   for (k in 1:N){
     oldp <-ptplusepsilon <- p[k,] 
     #Take one momentum vector.
+   # epsilon= runif(1,0.9*epsilon,1.1*epsilon);
     for (t in 1:L){
       #LeapFrog L times with step size epsilon
      # Glo<<- qtandepsilon;
@@ -49,33 +51,31 @@ HMCVer1 <- function(TotalSamples, densityA,M, q,epsilon,L, densitydiff, burnin) 
     else {qtandepsilon=oldq;
     RejectTotal= RejectTotal+1;
     }
-    Samples[k,] <- oldq
-    #points(Samples[k,1],Samples[k,2],pch=4,col=26,,xlab="x",ylab="y")
-    #Sys.sleep(0.04)
+    Samples[k,] <- oldq;
+   # points(Samples[k,1],Samples[k,2],pch=4,col=26,,xlab="x",ylab="y")
+  # Sys.sleep(0.03)
     #In order to plot points sequentially
     #scatterplot3d(Samples[k,1],Samples[k,2],Samples[k,3],xlim=c(-4,4),ylim=c(-4,4),zlim=c(-4,4))
     #par(new=TRUE)
     #Samples
     #forget Intialisation
   }
-  cat("Total Samples after Burn in:",TotalSamples,"\nStep Size used was",epsilon,"\nLeapFrog iterations were",L,"\nMean Of Samples=",apply(Samples,2,mean),"\nCovariance=",cov(Samples), "\nRejectionRate=",RejectTotal/N)
+  cat("Total Samples after Burn in:",TotalSamples,"\nStep Size used was (+-10%)",epsilonFix,"\nLeapFrog iterations were",L,"\nMean Of Samples=",apply(Samples,2,mean),"\nCovariance=",cov(Samples), "\nRejectionRate=",RejectTotal/N)
   #hist(Samples[((burnin+1):N),],freq=F)
-  #plot(Samples[,1],Samples[,2],type='l',col=2)
   #points(Samples[,1],Samples[,2])
+  plot(Samples[,1],Samples[,2],col=2)
  # lines(seq(-4,4,0.01),dnorm(seq(-4,4,0.01)))
   #acf(Samples)
   return(Samples[((burnin+1):N),])
 }
 JJ <- HMCVer1(TotalSamples = 10000,densityA = dnorm,M=1,q = 0,epsilon = 0.05,L = 20,densitydiff = function(x) x,burnin = 100)
 
-
 # Multivariate example - needs work
-JJ <- HMCVer1(TotalSamples = 100,densityA = function(l) dmvnorm(l,c(0,0),matrix(c(1,0.9,0.9,1),2,2)),q = c(0,0),M=diag(length(q)),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(matrix(c(1,0.9,0.9,1),2,2))%*%as.matrix(x)}, burnin = 0)
-
+JJ <- HMCVer1(TotalSamples = 2000,densityA = function(l) dmvnorm(l,c(0,0),matrix(c(1,0.9,0.9,1),2,2)),q = c(0,0),M=diag(length(q)),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(matrix(c(1,0.9,0.9,1),2,2))%*%as.matrix(x)}, burnin = 0)
 
 JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,c(0,0,0),matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3)),q = c(0,0,0),M=diag(length(q)),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3))%*%as.matrix(x)}, burnin = 0)
 #50 dimensions
-JJ <- HMCVer1(TotalSamples = 100,densityA = function(l) dmvnorm(l,rep(0,50),diag(seq(from=0.02,to=1,length=50))),q = rep(0,50),M=diag(length(q)),epsilon = 0.05,L = 50,densitydiff = function(x) {diag(seq(from=0.02,to=1,length=50))%*%as.matrix(x)}, burnin = 0)
+JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,rep(0,50),diag(seq(from=0.02,to=1,length=50)^2)),q = rep(0,50),M=diag(length(q)),epsilon = 0.014,L = 150,densitydiff = function(x) {solve(diag(seq(from=0.02,to=1,length=50)^2))%*%as.matrix(x)}, burnin = 0)
 #Make matrix 50 by 50
 
 MatrixMake=diag(seq(from=0.02,to=1,length=50))
