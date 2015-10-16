@@ -74,7 +74,7 @@ setwd("Letters/")
 all.letters <- c(letters,toupper(letters),"?","!")
 for(i in 1:length(all.letters)){
 jpeg(filename = paste(all.letters[i],".jpg",sep=""))
-plot(0,0,pch=all.letters[i],xaxt="n",yaxt="n",ann=F, bty="n",cex=35)
+plot(0,0,pch=all.letters[i],xaxt="n",yaxt="n",ann=F, bty="n",cex=30)
 dev.off()
 }
 
@@ -83,8 +83,9 @@ out <- list()
 files <- list.files()
 maxdim <- 32 #allows for a 32*32 grid representing the letters
 seqn <- floor(seq(1,nrow(m),length=maxdim))
-
-for(i in 1:length(files)) {
+ks <-c(2,4,5,3,4,6,4,4,4,4,4,4,3,3,5,5,3,3,2,2,3,3,3,3,2,2,5,4,3,3,4,6,4,3,4,7,
+       2,5,5,5,3,2,3,3,2,2,4,4,2,2,3,3,3,3)
+for(i in 32:length(files)) {
   # Read in the image and convert it into a matrix
   img <- readJPEG(files[i])
   m <- as.raster(img, max = 255)
@@ -106,11 +107,11 @@ for(i in 1:length(files)) {
   l <- 1
   for(j in 1:nrow(compressed)) {
     for(k in 1:ncol(compressed)) {
-      coords[l,] <- c(j,32-k,compressed[j,k])
+      coords[l,] <- c(j,maxdim-k,compressed[j,k])
       l <- l+1
     }
   }
-  gauss.mix <- mvnormalmixEM(coords[coords[,3]==1,1:2],k=4)
+  gauss.mix <- mvnormalmixEM(coords[coords[,3]==1,1:2],k=ks[i])
   out[[i]] <- c(letter = all.letters[i],
                 lambda = gauss.mix$lambda,
                 mu = gauss.mix$mu,
