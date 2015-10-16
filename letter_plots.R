@@ -36,6 +36,6 @@ WordPrint <- function(word,cols=NULL) {
 }
 plot(0:50,0:50,type="n",asp=1,bty="n",xaxt="n",yaxt="n",ann=F)
 for(i in 1:10000) {
-  WordPrint("HMC",cols=c(rep("#014FDC",4),rep("#01A401",2)))
+  WordPrint("mMC",cols=c(rep("#014FDC",4),rep("#01A401",2)))
 }
 
