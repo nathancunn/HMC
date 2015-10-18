@@ -19,3 +19,8 @@ m <- stan_model(model_code = 'data {row_vector[2] mu; matrix[2,2] Sigma;} parame
 
 f <- sampling(m, iter = 1000)
 pairs(f)
+x <- f@sim$samples[[1]][[1]]
+y <- f@sim$samples[[1]][[2]]
+
+x2 <- f@sim$samples[[4]][[1]]
+y2 <- f@sim$samples[[4]][[2]]
