@@ -1,80 +1,61 @@
-
-\documentclass{article}
-\usepackage{cite}
-\usepackage{bm}
-\usepackage{cite}
-\usepackage{amsmath, amssymb}
-\usepackage{amsthm}
-\usepackage{amsfonts}
-\usepackage{mathrsfs}
-\usepackage{graphicx}
-\usepackage{listings}
-\usepackage{mathtools}
-\usepackage{sidecap}
-\sidecaptionvpos{figure}{c}
-\DeclareGraphicsExtensions{.pdf,.png,.jpg}
-\usepackage[normal]{caption}
-\usepackage{relsize}
-\usepackage{pdflscape}
-\usepackage{geometry}
-\usepackage[T1]{fontenc}
-\usepackage[nottoc,numbib]{tocbibind}
-\usepackage[sort&compress,round,comma,authoryear,numbers]{natbib}
-%\usepackage[round]{natbib}   % omit 'round' option if you prefer square brackets
-\bibliographystyle{plainnat}
-
-
-\newtheorem*{mydef}{Definition}
-\newtheorem*{prop}{Proposition}
-\newtheorem*{thm}{Theorem}
-\usepackage{fancyhdr}
-\pagestyle{fancy}
-
-
-\usepackage{placeins}
-\usepackage{array,booktabs}
-
-\lstset{
-language=Matlab, % choose the language of the code
-% basicstyle=10pt, % the size of the fonts that are used for the code
-numbers=left, % where to put the line-numbers
-numberstyle=\footnotesize, % the size of the fonts that are used for the line-numbers
-stepnumber=1, % the step between two line-numbers. If it is 1 each line will be numbered
-numbersep=5pt, % how far the line-numbers are from the code
-% backgroundcolor=\color{white}, % choose the background color. You must add \usepackage{color}
-showspaces=false, % show spaces adding particular underscores
-showstringspaces=false, % underline spaces within strings
-showtabs=false, % show tabs within strings adding particular underscores
-% frame=single, % adds a frame around the code
-% tabsize=2, % sets default tabsize to 2 spaces
-% captionpos=b, % sets the caption-position to bottom
-breaklines=true, % sets automatic line breaking
-breakatwhitespace=false, % sets if automatic breaks should only happen at whitespace
-escapeinside={\%*}{*)} % if you want to add a comment within your code
+\title{Simulation using Hamiltonian Monte Carlo}
+\author{
+        Leon Law \\
+                OxWaSP\\
+            \and
+        Nathan Cunningham\\
+        OxWaSP\\
 }
+\date{\today}
 
-
-\title{University Of Oxford \\ OxWaSP 2015\\
-Simulation using Hamiltonian Monte Carlo}
+\documentclass[12pt]{article}
 
 \begin{document}
-
-\rhead{University Of Oxford }
 \maketitle
-\pagebreak
+
 \begin{abstract}
-\noindent
-This project aims to explore aspects of using Hamiltonian Monte Carlo, from experimental design, data preparation, modelling and hypothesis testing. One main focus will be on the estimation of delay in fMRI response in an event related design using the method proposed by \cite{liao2002estimating}. Two efficient and robust estimators of delay are proposed and their performance is compared using simulated and real experimental data. Through these estimators, it is found that although the method is fairly robust for a block design, it is very sensitive in an event related design, especially when the true dispersion varies more than expected. \\
-\noindent
+This is the paper's abstract \ldots
 \end{abstract}
 
-\renewcommand{\abstractname}{Acknowledgements}
-\begin{abstract}
-\noindent \end{abstract}
-\pagebreak
- \tableofcontents
- 
- \pagebreak
- \section{Introduction} 
- \section{Algorithm}
- \end {document}
+\section{Introduction}
+\subsection{Aim}
+\subsection{Motivation}
+\subsection{Metropolis-Hastings failings}
+\subsection{Physics}
+
+\section{Hamiltonian dynamics}
+\subsection{The Leapfrog}
+\section{Algorithm}
+\subsection{Explanation}
+
+\section{Comparisons}
+\subsection{2-d Gaussian vs MH}
+\subsection{Awkward initialisations}
+\subsection{Computation times}
+\subsection{High-dimensionality}
+\subsection{Choices of $\epsilon$ and L}
+
+\section{No U-turn sampler (NUTS)}
+
+
+
+\paragraph{Outline}
+The remainder of this article is organized as follows.
+Section~\ref{previous work} gives account of previous work.
+Our new and exciting results are described in Section~\ref{results}.
+Finally, Section~\ref{conclusions} gives the conclusions.
+
+\section{Previous work}\label{previous work}
+A much longer \LaTeXe{} example was written by Gil~\cite{Gil:02}.
+
+\section{Results}\label{results}
+In this section we describe the results.
+
+\section{Conclusions}\label{conclusions}
+We worked hard, and achieved very little.
+
+\bibliographystyle{abbrv}
+\bibliography{main}
+
+\end{document}
+This is never printed
