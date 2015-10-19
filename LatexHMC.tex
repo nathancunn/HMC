@@ -1,6 +1,6 @@
 \title{Simulation using Hamiltonian Monte Carlo}
 \author{
-        Leon Law \\
+        Ho Chung Leon  Law \\
             \and
         Nathan Cunningham\\
 }
@@ -22,18 +22,52 @@ Hamiltonian Monte Carlo is a method for sampling from a distribution
 \subsection{Metropolis-Hastings failings}
 
 \section{Hamiltonian dynamics}
-The Hamiltonian equations model the evolution of a particle in a frictionless system over time, $t$, given its momentum, $q$, and position, $p$. The Hamilton equation consists of the potential energy of the particle, $U(q)$, and the kinetic energy, $K(p)$, and in Hamiltonian Monte Carlo is usually written as
-\begin{center}$H(q,p) = U(q) + K(p)$ \\ \end{center}
+The Hamiltonian equations model the evolution of a particle in a frictionless system over time, $t$, given its momentum, $p$, and position, $q$. The Hamilton equation consists of the potential energy of the particle, $U(q)$, and the kinetic energy, $K(p)$, and in Hamiltonian Monte Carlo is usually written as
+\begin{equation}
+H(q,p) = U(q) + K(p)
+\end{equation}
 This system evolves according to the following differential equations:
-\begin{center}
-$\frac{dq_{i}}{dt} = \frac{\delta H}{\delta p_{i}}$ \\
-$\frac{dp_{i}}{dt} = \frac{-\delta H}{\delta q_{i}}$
-\end{center}
-\subsection{Properties of Hamiltonian dynamics}
-\subsection{The Leapfrog}
+\begin{equation}
+\frac{dq_{i}}{dt} = \frac{\delta H}{\delta p_{i}}
+\end{equation}
+\begin{equation}
+\frac{dp_{i}}{dt} = \frac{-\delta H}{\delta q_{i}}
+\end{equation}
 
+
+
+\subsection{Properties of Hamiltonian dynamics}
+\paragraph{Reversibility}
+\paragraph{Volume preservation}
+\paragraph{Conservation of the Hamiltonian}
+\paragraph{Symplecticness}
+\subsection{The Leapfrog}
+\begin{equation}
+p_{i}(t+\epsilon/2) = p_{i}(t) - (\epsilon/2)\frac{\delta U}{\delta q_{i}}(q(t))
+\end{equation}
+\begin{equation}
+q_{i}(t+\epsilon) = q_{i}(t) - (\epsilon)\frac{p_{i}(t+\epsilon/2)}{m_{i}}
+\end{equation}
+\begin{equation}
+p_{i}(t+\epsilon) = p_{i}(t+\epsilon/2) - (\epsilon/2)\frac{\delta U}{\delta q_{i}}(q(t+\epsilon))
+\end{equation}
 
 \section{Algorithm}
+\begin{equation}
+P(x) = \frac{1}{Z}exp(-E(x)/T)
+\end{equation}
+\begin{equation}
+P(q,p) = \frac{1}{Z}exp(-H(q,p)/T)
+\end{equation}
+\begin{equation}
+P(q,p) = \frac{1}{Z}exp(-U(q)/T)exp(-K(p)/T)
+\end{equation}
+\begin{equation}
+K(p) = \sum_{i=1}^{d} \frac{p_{i}^{2}}{2m_{i}}
+\end{equation}
+\begin{equation}
+min\{1,exp(-H(q^{*},p^{*})+H(q,p))\} = min\{1, exp(-U(q^{*}+U(q)-K(p^{*}+K(p))\}
+\end{equation}
 \subsection{Explanation pseudo-code}
 
 \section{Comparisons}
