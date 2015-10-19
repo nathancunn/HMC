@@ -30,7 +30,7 @@ m <- stan_model(model_code = 'data {
                 U ~ uniform(0,1);
                 }')
 
-letter <- A[[6]]
+letter <- A[[8]]
 K <- (length(letter)-1)/3
 lambda <- cumsum(letter[2:(1+K)]) # mixing proportions
 d <- 2 # number of dimensions
@@ -44,6 +44,6 @@ for(i in 2:K) {
 }
 
 
-f <- sampling(m, iter = 5000,chains=1)
+f <- sampling(m, iter = 5000,chains=2)
 hist(f@sim$samples[[1]]$`z[3]`)
-plot(f@sim$samples[[1]]$`z[1]`,f@sim$samples[[1]]$`z[2]`,asp = 1)
+plot(f@sim$samples[[2]]$`z[1]`,f@sim$samples[[2]]$`z[2]`,asp = 1)
