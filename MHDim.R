@@ -76,6 +76,7 @@ WordprintMH <- function(word,lastValueH) {
 WordOutputAllMH= function(Word,SampleSize,cols=NULL){
   plot.new()
   FinalOutput=matrix(0,SampleSize,2);
+  ColorsMemory=matrix(0,SampleSize,2)
   #plot.window(xlim=c(-10,50), ylim=c(0,20))
   if(is.null(cols)) {cols=rep(1,n)}
   length.of.string <-nchar(Word);
@@ -83,6 +84,7 @@ WordOutputAllMH= function(Word,SampleSize,cols=NULL){
   for (i in 1:SampleSize) {
     OutputOnce<-WordprintMH(Word,LastValueG)
     FinalOutput[i,]=OutputOnce[[1]]
+    ColorsMemory[i,]=c(OutputOnce[[2]],OutputOnce[[3]])
     LastValueG[OutputOnce[[2]],OutputOnce[[3]],]=FinalOutput[i,]
     #if (i==1){
     #plot(FinalOutput[i,],cex=0.75,col="black")}
@@ -95,10 +97,10 @@ WordOutputAllMH= function(Word,SampleSize,cols=NULL){
   FinalOutputMaxX=max(FinalOutput[,1])
   FinalOutputMaxY=max(FinalOutput[,2])
   #quartz()
-  #plot(FinalOutput[1,],cex=0.75,xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2))
+  plot(FinalOutput[1,],cex=0.75,xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2),col=rgb(ColorsMemory[1,1]/length.of.string,ColorsMemory[1,2]/6,0.2))
   #Sys.sleep(1)
   for (i in 2:SampleSize){
-  points(FinalOutput[i,1],FinalOutput[i,2],cex=0.75,col="black",xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2)) }
+  points(FinalOutput[i,1],FinalOutput[i,2],cex=0.75,col=rgb(ColorsMemory[i,1]/length.of.string,ColorsMemory[i,2]/6,0.2),xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2)) }
   #Sys.sleep(0.01)
   Size=dim(unique(FinalOutput))
   cat("Total Samples after Burn in:",SampleSize,"\nMean Of Samples=",apply(FinalOutput,2,mean),"\nCovariance=",cov(FinalOutput), "\nRejectionRate=",1-(Size[1]/SampleSize))
