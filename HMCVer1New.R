@@ -3,6 +3,7 @@ library(mvtnorm)
 HMCVer1 <- function(TotalSamples, densityA,M,q,epsilon,L, densitydiff, burnin) {
   #Takes in Total Samples, density of interest, Mass Matrix, Initial Value, Step Size, Number of Steps, differential of density, burn in amount
   epsilonFix=epsilon;
+  now=Sys.time()
   #For display at the end.
 #quartz()
 #Bring up window for plot
@@ -18,6 +19,7 @@ HMCVer1 <- function(TotalSamples, densityA,M,q,epsilon,L, densitydiff, burnin) {
   if(length(M)>1){MassVector <- colSums(M)} else MassVector <- M
 #Use in leapfrog
   N <- TotalSamples+burnin; #How many samples will be needed
+pb <- txtProgressBar(min = 0, max = N, style = 3);
   OldHamiltonian=rep(0,N);
 ProposeHamiltonian=rep(0,N);
   Samples <- matrix(0,N,d);
@@ -73,6 +75,7 @@ ProposeHamiltonian=rep(0,N);
     #par(new=TRUE)
     #Samples
     #forget Intialisation
+  setTxtProgressBar(pb, k)
   }
 #  cat("Total Samples after Burn in:",TotalSamples,"\nStep Size used was (+-10%)",epsilonFix,"\nLeapFrog iterations were",L,"\nMean Of Samples=",apply(Samples,2,mean),"\nCovariance=",cov(Samples), "\nRejectionRate=",RejectTotal/N)
   #hist(Samples[((burnin+1):N),],freq=F)
@@ -80,10 +83,13 @@ ProposeHamiltonian=rep(0,N);
   #plot(Samples[,1],Samples[,2],col=2)
   #lines(seq(-4,4,0.01),dnorm(seq(-4,4,0.01)))
   #acf(Samples)
-#  plot(1:N,OldHamiltonian-ProposeHamiltonian)
+ plot(1:N,OldHamiltonian-ProposeHamiltonian)
  # plot(Samples[,1])
 #plot(Samples[,1],Samples[,2],type='l',col=2,xlab="X",ylab="Y")
 #points(Samples[,1],Samples[,2],pch=4)
+after=Sys.time()-now;
+print(after)
+close(pb)
 (Samples[((burnin+1):N),])
 }
 JJ <- HMCVer1(TotalSamples = 1,densityA = dnorm,M=1,q = 0,epsilon = 0.05,L = 20,densitydiff = function(x) x,burnin = 100)
@@ -91,8 +97,13 @@ JJ <- HMCVer1(TotalSamples = 1,densityA = dnorm,M=1,q = 0,epsilon = 0.05,L = 20,
 #Bivariate Normal
 JJ <- HMCVer1(TotalSamples = 25,densityA = function(l) dmvnorm(l,c(0,0),matrix(c(1,0.95,0.95,1),2,2)),q = c(-2,-2),M=diag(2),epsilon = 0.18,L = 20,densitydiff = function(x) {solve(matrix(c(1,0.95,0.95,1),2,2))%*%as.matrix(x)}, burnin = 0)
 
-JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,c(20,4,-10),matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3)),M=diag(3),q = c(10,10,-10),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3))%*%(as.matrix(x)-as.matrix(c(20,4,-10)))}, burnin = 0)
+JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,c(0,0,0),matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3)),M=diag(3),q = c(10,10,-10),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3))%*%(as.matrix(x)-as.matrix(c(20,4,-10)))}, burnin = 0)
 #50 dimensions
-JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,rep(0,50),diag(seq(from=0.02,to=1,length=50)^2)),q = rep(0,50),M=diag(50),epsilon = 0.014,L = 150,densitydiff = function(x) {solve(diag(seq(from=0.02,to=1,length=50)^2))%*%as.matrix(x)}, burnin = 0)
+JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,rep(0,150),diag(seq(from=0.02,to=1,length=150)^2)),q = rep(0,150),M=diag(150),epsilon = 0.014,L = 100,densitydiff = function(x) {solve(diag(seq(from=0.02,to=1,length=150)^2))%*%as.matrix(x)}, burnin = 0)
 #Make matrix 50 by 50
-MatrixMake=diag(seq(from=0.02,to=1,length=50))
+MatrixMake=seq(from=0.02,to=1,length=150)^2
+plot(MatrixMake[1],var(JJ[,1]),xlim=c(0,1),ylim=c(0,1),xlab="Real Variance of coordinate",ylab="Sample Variance",main="Hamiltonian Monte Carlo")
+for (t in 2:150) {
+  points(MatrixMake[t],var(JJ[,t]))
+}
+lines(MatrixMake,MatrixMake)

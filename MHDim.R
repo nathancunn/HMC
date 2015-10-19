@@ -1,13 +1,16 @@
 MetropolisHastingC = function(TamplesN, densityInt, sigma, initial,thin) {
+  now=Sys.time()
   #Multivariate Normal with Samples, integration, (sigma in this case for 2-dim),initial conditions, thinning (1 if no thinning)
   SamplesN=thin*TamplesN;
   #Works out how much thinning
   OldPos=initial;
   OutputSamples= matrix(0,SamplesN,length(initial));
+  pb <- txtProgressBar(min = 0, max = SamplesN, style = 3);
   #Allocation
+  Dimensions=length(initial);
   for (i in 1:SamplesN)
 {
-    Proposal<- as.vector(OldPos)+c(runif(1,-sigma,sigma),runif(1,-sigma,sigma))
+    Proposal<- as.vector(OldPos)+as.vector(runif(Dimensions,-sigma,sigma))
     #Proposal Value using uniform proposal (2-dimesional))
       #rmvnorm(1,as.vector(OldPos),sigma);
     ProposedValue=densityInt(as.vector(Proposal));
@@ -20,6 +23,7 @@ MetropolisHastingC = function(TamplesN, densityInt, sigma, initial,thin) {
       OldPos=Proposal;
     }
 OutputSamples[i,]=OldPos
+setTxtProgressBar(pb, i)
   }
 if (TamplesN==1)
 {
@@ -31,8 +35,11 @@ FinalOutputSamples=OutputSamples[seq(1,dim(OutputSamples)[1],thin),] }
 #Thinning
 #plot(FinalOutputSamples[,1],FinalOutputSamples[,2],type='l',col=2,xlab="X",ylab="Y",xlim=c(-2,2),ylim=c(-2,2))
 #points(FinalOutputSamples[,1],FinalOutputSamples[,2],pch=4)
-#cat("rejectionRate=",1-(Size[1]/SamplesN))
+cat("rejectionRate=",1-(Size[1]/SamplesN))
+after=Sys.time()-now;
+print(after)
 return(FinalOutputSamples)
+close(pb)
 }
 MetropolisHastingC(1000,function(j){dnorm(j,0,1)},1,0,10)
 
@@ -123,3 +130,10 @@ WordOutputAllMH= function(Word,SampleSize){
   cat("Total Samples after Burn in:",SampleSize,"\nMean Of Samples=",apply(FinalOutput,2,mean),"\nCovariance=",cov(FinalOutput), "\nRejectionRate=",1-(Size[1]/SampleSize))
   return(FinalOutput)
 }
+
+JJ=MetropolisHastingC(100,function(j){dmvnorm(j,rep(0,150),diag(seq(from=0.02,to=1,length=150)^2))},0.02, rep(0,150),150)
+plot(MatrixMake[1],var(JJ[,1]),xlim=c(0,1),ylim=c(0,1),xlab="Real Variance of coordinate",ylab="Sample Variance",main="Metropolis Hasting")
+for (t in 2:150) {
+  points(MatrixMake[t],var(JJ[,t]))
+}
+lines(MatrixMake,MatrixMake)
