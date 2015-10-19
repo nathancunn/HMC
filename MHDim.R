@@ -14,7 +14,7 @@ MetropolisHastingC = function(TamplesN, densityInt, sigma, initial,thin) {
     }
 OutputSamples[i,]=OldPos
   }
-if {TamplesN==1}
+if (TamplesN==1)
 {
   FinalOutputSamples=OutputSamples[thin,]
 }
@@ -69,7 +69,7 @@ WordprintMH <- function(word,lastValueH) {
   #TRY2<<-group
   if (lastValueH[letter,group,1]==0 & lastValueH[letter,group,2]==0)
   {lastValueH[letter,group,]=as.vector(mean.group)}
-  FinalOutput=MetropolisHastingC(1, function(l) {dmvnorm(l,as.vector(mean.group),var.group)},sqrt(max(as.vector(var.group))), as.vector(lastValueH[letter,group,]),25) 
+  FinalOutput=MetropolisHastingC(1, function(l) {dmvnorm(l,as.vector(mean.group)-c(3,3),var.group)},sqrt(sqrt(max(as.vector(var.group)))), as.vector(lastValueH[letter,group,]),1) 
   #points(rmvnorm(1,mu = mean.group, sigma = var.group),cex=0.75,col=cols[letter])
   (list(FinalOutput,letter,group))
 }
@@ -97,8 +97,10 @@ WordOutputAllMH= function(Word,SampleSize,cols=NULL){
   #quartz()
   #plot(FinalOutput[1,],cex=0.75,xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2))
   #Sys.sleep(1)
-  #for (i in 2:SampleSize){
-  #points(FinalOutput[i,1],FinalOutput[i,2],cex=0.75,col="black",xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2)) }
+  for (i in 2:SampleSize){
+  points(FinalOutput[i,1],FinalOutput[i,2],cex=0.75,col="black",xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2)) }
   #Sys.sleep(0.01)
-  FinalOutput
+  Size=dim(unique(FinalOutput))
+  cat("Total Samples after Burn in:",SampleSize,"\nMean Of Samples=",apply(FinalOutput,2,mean),"\nCovariance=",cov(FinalOutput), "\nRejectionRate=",1-(Size[1]/SampleSize))
+  return(FinalOutput)
 }
