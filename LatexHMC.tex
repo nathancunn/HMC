@@ -1,10 +1,8 @@
 \title{Simulation using Hamiltonian Monte Carlo}
 \author{
         Leon Law \\
-                OxWaSP\\
             \and
         Nathan Cunningham\\
-        OxWaSP\\
 }
 \date{\today}
 
@@ -14,19 +12,29 @@
 \maketitle
 
 \begin{abstract}
-This is the paper's abstract \ldots
+In this report we aim to implement Hamiltonian Monte Carlo in R code and compare its effectiveness with other Monte Carlo methods \ldots
 \end{abstract}
 
 \section{Introduction}
+Hamiltonian Monte Carlo is a method for sampling from a distribution 
 \subsection{Aim}
 \subsection{Motivation}
 \subsection{Metropolis-Hastings failings}
-\subsection{Physics}
 
 \section{Hamiltonian dynamics}
+The Hamiltonian equations model the evolution of a particle in a frictionless system over time, $t$, given its momentum, $q$, and position, $p$. The Hamilton equation consists of the potential energy of the particle, $U(q)$, and the kinetic energy, $K(p)$, and in Hamiltonian Monte Carlo is usually written as
+\begin{center}$H(q,p) = U(q) + K(p)$ \\ \end{center}
+This system evolves according to the following differential equations:
+\begin{center}
+$\frac{dq_{i}}{dt} = \frac{\delta H}{\delta p_{i}}$ \\
+$\frac{dp_{i}}{dt} = \frac{-\delta H}{\delta q_{i}}$
+\end{center}
+\subsection{Properties of Hamiltonian dynamics}
 \subsection{The Leapfrog}
+
+
 \section{Algorithm}
-\subsection{Explanation}
+\subsection{Explanation pseudo-code}
 
 \section{Comparisons}
 \subsection{2-d Gaussian vs MH}
@@ -37,25 +45,7 @@ This is the paper's abstract \ldots
 
 \section{No U-turn sampler (NUTS)}
 
-
-
-\paragraph{Outline}
-The remainder of this article is organized as follows.
-Section~\ref{previous work} gives account of previous work.
-Our new and exciting results are described in Section~\ref{results}.
-Finally, Section~\ref{conclusions} gives the conclusions.
-
-\section{Previous work}\label{previous work}
-A much longer \LaTeXe{} example was written by Gil~\cite{Gil:02}.
-
-\section{Results}\label{results}
-In this section we describe the results.
-
-\section{Conclusions}\label{conclusions}
-We worked hard, and achieved very little.
-
 \bibliographystyle{abbrv}
 \bibliography{main}
 
 \end{document}
-This is never printed
