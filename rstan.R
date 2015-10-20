@@ -47,3 +47,27 @@ for(i in 2:K) {
 f <- sampling(m, iter = 5000,chains=2)
 hist(f@sim$samples[[1]]$`z[3]`)
 plot(f@sim$samples[[2]]$`z[1]`,f@sim$samples[[2]]$`z[2]`,asp = 1)
+
+
+# 150 dimensions
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+m <- stan_model(model_code = 'data {
+                int<lower=0> d;
+                row_vector[d] mu;
+                matrix[d,d] sigma;
+                }
+                parameters {
+                row_vector[d] x;
+                }
+                model {
+                x ~ multi_normal(mu, sigma);
+                }')
+d <- 150
+mu <- rep(0,150)
+sigma <- diag(seq(from=0.02, to=1, length = 150)^2)
+
+f <- sampling(m, iter = 5000,chains=2)
+var(f@sim$samples[[1]]$`x[150]`)
+hist(f@sim$samples[[1]]$`x[2]`)
+plot(f@sim$samples[[2]]$`z[1]`,f@sim$samples[[2]]$`z[2]`,asp = 1)
