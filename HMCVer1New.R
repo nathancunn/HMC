@@ -107,3 +107,4 @@ for (t in 2:150) {
   points(MatrixMake[t],var(JJ[,t]))
 }
 lines(MatrixMake,MatrixMake)
+plot(MatrixMake,apply(JJ,2,mean),xlab="Real Variance",ylab="Mean",main="Hamiltonian Monte Carlo")
