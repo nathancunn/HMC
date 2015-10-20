@@ -87,8 +87,6 @@ WordOutputAll= function(Word,SampleSize){
   cat("Total Samples after Burn in:",SampleSize,"\nMean Of Samples=",apply(FinalOutput,2,mean),"\nCovariance=",cov(FinalOutput), "\nRejectionRate=",1-(Size[1]/SampleSize))
 }
 
-
-
 plot(0:50,0:50,type="n",asp=1,bty="n",xaxt="n",yaxt="n",ann=F)
 for(i in 1:10000) {
   WordPrint("Hello",cols=c(rep("#014FDC",4),rep("#01A401",2)))

@@ -99,7 +99,7 @@ JJ <- HMCVer1(TotalSamples = 25,densityA = function(l) dmvnorm(l,c(0,0),matrix(c
 
 JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,c(0,0,0),matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3)),M=diag(3),q = c(10,10,-10),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(matrix(c(1,0.9,0.8,0.9,1,0.7,0.8,0.7,1),3,3))%*%(as.matrix(x)-as.matrix(c(20,4,-10)))}, burnin = 0)
 #50 dimensions
-JJ <- HMCVer1(TotalSamples = 1000,densityA = function(l) dmvnorm(l,rep(0,150),diag(seq(from=0.02,to=1,length=150)^2)),q = rep(0,150),M=diag(150),epsilon = 0.014,L = 100,densitydiff = function(x) {solve(diag(seq(from=0.02,to=1,length=150)^2))%*%as.matrix(x)}, burnin = 0)
+JJ <- HMCVer1(TotalSamples = 5000,densityA = function(l) dmvnorm(l,rep(0,150),diag(seq(from=0.02,to=1,length=150)^2)),q = rep(0,150),M=diag(150),epsilon = 0.014,L = 100,densitydiff = function(x) {solve(diag(seq(from=0.02,to=1,length=150)^2))%*%as.matrix(x)}, burnin = 0)
 #Make matrix 50 by 50
 MatrixMake=seq(from=0.02,to=1,length=150)^2
 plot(MatrixMake[1],var(JJ[,1]),xlim=c(0,1),ylim=c(0,1),xlab="Real Variance of coordinate",ylab="Sample Variance",main="Hamiltonian Monte Carlo")

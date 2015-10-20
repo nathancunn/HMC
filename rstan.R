@@ -65,9 +65,27 @@ m <- stan_model(model_code = 'data {
                 }')
 
 mu <- rep(0,150)
+#mu = c(0,0)
 sigma <- diag(seq(from=0.02, to=1, length = 150)^2)
+#sigma = matrix(c(1,0.95,0.95,1),2,2))
 d <- length(mu)
-f <- sampling(m, iter = 5000,chains=2)
+f <- sampling(m, iter = 5000,chains=1)
 var(f@sim$samples[[1]]$`x[150]`)
 hist(f@sim$samples[[1]]$`x[2]`)
 plot(f@sim$samples[[2]]$`z[1]`,f@sim$samples[[2]]$`z[2]`,asp = 1)
+
+MatrixMake=seq(from=0.02,to=1,length=150)^2
+plot(MatrixMake[1],var(f@sim$samples[[1]]$`x[1]`),xlim=c(0,1),ylim=c(0,1),xlab="Real Variance of coordinate",ylab="Sample Variance",main="NUTS Monte Carlo",pch=4)
+Information=f@sim$samples[[1]]
+for (t in 2:150) {
+  points(MatrixMake[t],var(Information[[t]]),pch=4)
+}
+lines(MatrixMake,MatrixMake)
+plot(MatrixMake[1],mean(f@sim$samples[[1]]$`x[1]`),xlim=c(0,1),ylim=c(-0.3,0.3),xlab="Real Variance of coordinate",ylab="Sample Mean",main="NUTS Monte Carlo",pch=4)
+for (t in 2:150) {
+points(MatrixMake[t],mean(Information[[t]]),pch=4)}
+lines(MatrixMake,rep(0,150))
+attributes(Information)
+attributes(Information)$sampler_params$n_leapfrog_
+ATTRIBUTESNUTSEPSILON=attributes(Information)$sampler_params$stepsize__
+NUTSLEAPFROG=attributes(Information)$sampler_params$n_leapfrog_

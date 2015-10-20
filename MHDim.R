@@ -30,12 +30,12 @@ if (TamplesN==1)
   FinalOutputSamples=OutputSamples[thin,]
 }
 else {
-Size=dim(unique(OutputSamples))
+#Size=dim(unique(OutputSamples))
 FinalOutputSamples=OutputSamples[seq(1,dim(OutputSamples)[1],thin),] }
 #Thinning
 #plot(FinalOutputSamples[,1],FinalOutputSamples[,2],type='l',col=2,xlab="X",ylab="Y",xlim=c(-2,2),ylim=c(-2,2))
 #points(FinalOutputSamples[,1],FinalOutputSamples[,2],pch=4)
-cat("rejectionRate=",1-(Size[1]/SamplesN))
+#cat("rejectionRate=",1-(Size[1]/SamplesN))
 after=Sys.time()-now;
 print(after)
 return(FinalOutputSamples)
@@ -131,7 +131,7 @@ WordOutputAllMH= function(Word,SampleSize){
   return(FinalOutput)
 }
 
-JJ=MetropolisHastingC(100,function(j){dmvnorm(j,rep(0,150),diag(seq(from=0.02,to=1,length=150)^2))},0.02, rep(0,150),150)
+JJ=MetropolisHastingC(1000,function(j){dmvnorm(j,rep(0,150),diag(seq(from=0.02,to=1,length=150)^2))},0.025, rep(0,150),60)
 plot(MatrixMake[1],var(JJ[,1]),xlim=c(0,1),ylim=c(0,1),xlab="Real Variance of coordinate",ylab="Sample Variance",main="Metropolis Hasting")
 for (t in 2:150) {
   points(MatrixMake[t],var(JJ[,t]))
