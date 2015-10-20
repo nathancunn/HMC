@@ -7,24 +7,20 @@
 \date{\today}
 
 \documentclass[11pt]{article}
-
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \begin{document}
 \maketitle
 
 \begin{abstract}
 In this report we aim to examine the properties of Hamiltonian Monte Carlo, implement it in the R coding language, and compare its effectiveness to another method of monte carlo simulation. \ldots
 \end{abstract}
-
+\newpage
 \section{Introduction}
-Hamiltonian Monte Carlo is a markov chain monte carlo method for simulating a random sample from a probability distribution which may not be feasible to simulate from directly. \cite{neal}
+Hamiltonian Monte Carlo is a Markov Chain Monte Carlo method for simulating a random sample from a probability distribution which may not be feasible to simulate from directly.  \cite{neal}
 \subsection{Aim}
-Our aims in this report are to:
-
-\begin{enumerate}
-\item Implement Hamiltonian Monte Carlo in the R coding language 
-\item Examine the impact of the tuning parameters, $\epsilon$ and $L$, and methods of choosing these 
-\item Compare Hamiltonian Monte Carlo to the Metropolis-Hastings algorithm
-\end{enumerate}
+Our aims in this report are to: Implement Hamiltonian Monte Carlo in the R coding language; examine the impact of the tuning parameters, $\epsilon$ and $L$, and methods of choosing these; compare Hamiltonian Monte Carlo to the Metropolis-Hastings algorithm.
 
 
 \subsection{Motivation}
@@ -90,12 +86,23 @@ For each iteration of the leapfrog we can intialise our momentum variable random
 \begin{equation}
 K(p) = \sum_{i=1}^{d} \frac{p_{i}^{2}}{2m_{i}}
 \end{equation}
-Given the random initialisation of $p$ we then allow Hamiltonian dynamics to run for L steps
+Given the random initialisation of $p$ we then allow Hamiltonian dynamics to run for L steps to update $p$ and $q$ as appropriate. The new state is then accepted as the next state of the Markov chain with probability
 \begin{equation}
 min\{1,exp(-H(q^{*},p^{*})+H(q,p))\} = min\{1, exp(-U(q^{*}+U(q)-K(p^{*}+K(p))\}
 \end{equation}
+otherwise the next state is the same as the current state.
 \subsection{Algorithm}
-
+\begin{algorithm}
+\caption{Hamiltonian Monte Carlo}\label{euclid}
+\begin{algorithmic}[1] 
+\State Select an initial $q$ 
+\State Simulate $p\sim \mathcal{N}(0,\Sigma)$
+\State Given $(q,p)$ Simulate Hamiltonian dynamics using the leapfrog for $L$ steps with $\epsilon$ to find $(q^{*},p^{*})$ 
+\State Negate $p$ to ensure reversibility 
+\State Accept $(q^{*}, p^{*})$ as the next step in the Markov chain with probability (M prob) 
+\State Otherwise accept next step as $(p,q)$ 
+\end{algorithmic}
+\end{algorithm}
 \section{Comparisons}
 \subsection{2-d Gaussian vs MH}
 \subsection{Awkward initialisations}
