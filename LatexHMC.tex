@@ -11,6 +11,10 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage[a4paper,bindingoffset=0.2in,%
+            left=1in,right=1in,top=1in,bottom=1in,%
+            footskip=.25in]{geometry}
 \begin{document}
 \maketitle
 
@@ -111,20 +115,32 @@ The HMC method is sensitive to the user-tuned parameters $L$ and $\epsilon$. In 
 \section{Comparisons}
 \subsection{Two-dimensional Gaussian vs Metropolis-Hastings}
 \begin{figure}[H]
-  \includegraphics[width=1\linewidth]{images/MHvsHM_explore.pdf}
+\center
+  \includegraphics[width=5in]{images/MHvsHM_explore.pdf}
+\caption{The trajectory of a bivariate Gaussian distribution simulated with zero-mean and marginal $\sigma$ of 1, and $\rho$ of 0.95.}
 \end{figure}
+
+
 \begin{figure}[H]
-  \includegraphics[width=1\linewidth]{images/MHvsHM_var.pdf}
+\center
+  \includegraphics[width=5in]{images/MHvsHM_var.pdf}
+  \caption{Mean}
 \end{figure}
 \subsection{High-dimensionality}
 \begin{figure}[H]
-  \includegraphics[width=1\linewidth]{images/MHvsHM_varcoord.pdf}
+\center
+  \includegraphics[width=5in]{images/MHvsHM_varcoord.pdf}
+  \caption{A comparison of the real and observed variance of a highly-dimensional mutivariate Gaussian.}
 \end{figure}
 \subsection{Choices of $\epsilon$ and L}
 
 
 \subsection{No U-turn sampler (NUTS)}
 The No U-turn sampler\cite{NUTS} is an implementation of Hamiltonian Monte Carlo which aims to avoid the need for the user to manually specify $L$ and $\epsilon$
+\cite{rstan}
+\subsection{Normal mixture models}
+We compared the performance of our model to that of the Metropolis-Hastings algorithm and the NUTS method, as implemented in RStan
+
 \begin{thebibliography}{9}
 
 \bibitem{neal}
@@ -141,6 +157,9 @@ The No U-turn sampler\cite{NUTS} is an implementation of Hamiltonian Monte Carlo
 \bibitem{NUTS}
   Hoffman,M.D., Gelman,A.,
   arXiv:1111.4246v1.
+  
+\bibitem{rstan}
+  RStan, \url{http://mc-stan.org/interfaces/rstan.html}
 
 \end{thebibliography}
 \end{document}
