@@ -24,31 +24,31 @@ In this report we aim to examine the properties of Hamiltonian Monte Carlo, impl
 \end{abstract}
 \newpage
 \section{Introduction}
-Some popular methods to simulate from a density of interest is to use Metropolis Hasting and Gibbs Sampling and very commonly a random walk proposal is used. However, these may have slow mixing properties in certain situations, especially in a high-dimensional setting. Hamiltonian Monte Carlo (HMC) on the other hand make use of the first-order gradient information of the target density, which then allows us to coherently explore the state space. This is done through the introduction of auxiliary momentum variables, which then allows us to use Hamiltonian dynamics  to then construct a ergodic markov chain, whose stationary distribution is our density of interest. 
+Some popular methods to simulate from a density of interest is to use Random Walk Metropolis Hasting and Gibbs Sampling, however, these may have slow mixing properties, especially in a high-dimensional setting. Hamiltonian Monte Carlo (HMC) make use of first-order gradient information of the target density and Hamiltoian dynamics, which allows us to coherently explore the state space. This is done through the introduction of auxiliary momentum variables, which allows the use of Hamiltonian dynamics to construct an ergodic markov chain, whose stationary distribution is our density of interest. 
 \\
 \\
-In this report, we will to give a quick overview and intuition of the HMC algorithm, which is primarily based on Neal\cite{neal} and Duane et al\cite{duane} paper. We will then go on to implement the algorithm in R and compare results from different simulations using random walk Metropolis Hastings, HMC and No-U-Turn Sampler (NUTS). We will also illustrate these methods on mixture of gaussians, which resembles the 26 letters of the alphabets (Capital and Lower Case), where the parameters were found using EM-algorithm on an image data set of alphabets.
+In this report, we will first give a quick overview and intuition of the HMC algorithm, which is primarily based on Neal\cite{neal} and Duane et al\cite{duane} paper. We will then go on to implement the algorithm in R and compare results from different samplers, such as random walk Metropolis Hastings, HMC and No-U-Turn Sampler (NUTS). We will also illustrate these methods on mixtures of gaussians, which resembles the 26 letters of the alphabets (Capital and Lower Case), where the mixtures were found by using the EM-algorithm on an image data set of alphabets.
 \section{Hamiltonian Monte Carlo}
 \subsection{Target Density and Energy Function}
 We first define our target density to be of the form (without normalising constant):
 \begin{equation}
 P(q)= \pi(q)L(q|D) \quad \quad q \in \mathbb{R}^{d}
 \end{equation}
-where $\pi(q)$ is the prior density and $L(q|D)$ is the likelihood given data $D$. But in generally clearly this can be any density.
-We also define $q$ to be the 'position' vector in $d$ dimensions. Now, we note in statistical mechanics, given some energy function $E(x)$ via concept of the canonical distribution, we can express its canonical distribution as:
+where $\pi(q)$ is the prior density and $L(q|D)$ is the likelihood given data $D$. 
+We also define $q$ to be the 'position' vector in $d$ dimensions. Now, from statistical mechanics, given some energy function $E(x)$ in some system, we can express its canonical distribution as:
 \begin{equation}
 \label{energy}
 Pr(x) = \frac{1}{Z}exp(-E(x)/T)
 \end{equation}
-where $T$ is the temperature of the system (which we can assume as 1) and $Z$ is a normalising constant. By considering this, we can now define the 'energy' of our target density as:
+where $T$ is the temperature of the system (which we can assume as 1) and $Z$ is a normalising constant. By considering this, we define the energy of our target density as:
 \begin{equation}
 U(q) = -log[\pi(q)L(q|D)]
 \end{equation}
-We now introduce an auxiliary variable $p$ ('momentum' in $d$ dimensions), which we define to have energy function $K(p)$, which using equation \ref{energy} has in turns a density function $Q(p)$. We define the joint density of $(p,q)$ as 
+We now introduce an auxiliary variable $p$ ('momentum' in $d$ dimensions), which we define to have energy function $K(p)$, which using equation \ref{energy} has in turn a density function $Q(p)$. We then define the joint density of $(p,q)$ as 
 \begin{equation}
 P(q,p) = \frac{1}{Z}exp(-U(q)/T)exp(-K(p)/T) = \frac{1}{Z}exp(-H(q,p)/T)
 \end{equation}
-where $H(q,p) = U(q) + K(p)$ can be seen as the energy function for the joint state $(q,p)$.The independence of $q$ and $p$ allows easy extraction of samples from $P(q)$ and we remark that the introduction of $p$ enables us to use Hamiltonian Dynamics, which has very nice properties. 
+where $H(q,p) = U(q) + K(p)$ now can be seen as the energy function for the joint state $(q,p)$ distribution. The independence of $q$ and $p$ allows easy extraction of samples from $P(q)$ and we remark that the introduction of $p$ enables us to use Hamiltonian Dynamics, which has some nice properties. 
 \subsection{Hamiltonian dynamics}
 Hamiltonian dynamics is the system described by a pair of differential equations with coordinates $(q,p)$, for $i=1 \dots d$
 \begin{equation}
