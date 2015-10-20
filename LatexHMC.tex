@@ -6,7 +6,7 @@
 }
 \date{\today}
 
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 
 \begin{document}
 \maketitle
@@ -16,7 +16,7 @@ In this report we aim to examine the properties of Hamiltonian Monte Carlo, impl
 \end{abstract}
 
 \section{Introduction}
-Hamiltonian Monte Carlo is a markov chain monte carlo method for simulating a random sample from a probability distribution which may not be feasible to simulate from directly. \cite{Neal}
+Hamiltonian Monte Carlo is a markov chain monte carlo method for simulating a random sample from a probability distribution which may not be feasible to simulate from directly. \cite{neal}
 \subsection{Aim}
 Our aims in this report are to:
 
@@ -68,23 +68,33 @@ p_{i}(t+\epsilon) = p_{i}(t+\epsilon/2) - (\epsilon/2)\frac{\delta U}{\delta q_{
 \end{equation}
 Iterate over this process $L$ times.
 
-\section{Algorithm}
+\section{Hamiltonian Monte Carlo}
+In statistical mechanics the canonical distribution, given an energy function $E(x)$, can be expressed as
 \begin{equation}
 P(x) = \frac{1}{Z}exp(-E(x)/T)
 \end{equation}
+where $T$ is the temperature of the system (which we can assume as 1) and $Z$ is a normalising constant. Thus, we can convert our distribution $P(x)$ to a canonical distribution by setting the energy function, $E(x)$ to $-logP(x)-logZ$
+
+Given that the Hamiltonian has been defined as $H(q,p) = U(q) + K(p)$ the joint density is given by
 \begin{equation}
 P(q,p) = \frac{1}{Z}exp(-H(q,p)/T)
 \end{equation}
 \begin{equation}
 P(q,p) = \frac{1}{Z}exp(-U(q)/T)exp(-K(p)/T)
 \end{equation}
+Thus, p and q are independent and each have canonical distributions with energy functions $U(q)$ and $K(p)$. We set the variable $q$ to represent our variables of interest, and we introduce the variable $p$ to represent momentum to allow the Hamiltonian dynamics to operate. We can express the posterior distribution, $U(q)$, as a canonical distribution with a potential energy function defined as:
+\begin{equation}
+U(q) = -log[\pi(q)L(q|D)]
+\end{equation}
+For each iteration of the leapfrog we can intialise our momentum variable randomly from a distribution. Given that p and q are independent we can sample p from any distribution we like. Typically we choose p to have a zero-mean Gaussian distribution. Usually each of the $i$ components of p are assumed to be independent with variance $m_{i}$. Thus, the kinetic energy function producing this distribution is
 \begin{equation}
 K(p) = \sum_{i=1}^{d} \frac{p_{i}^{2}}{2m_{i}}
 \end{equation}
+Given the random initialisation of $p$ we then allow Hamiltonian dynamics to run for L steps
 \begin{equation}
 min\{1,exp(-H(q^{*},p^{*})+H(q,p))\} = min\{1, exp(-U(q^{*}+U(q)-K(p^{*}+K(p))\}
 \end{equation}
-\subsection{Pseudo-code}
+\subsection{Algorithm}
 
 \section{Comparisons}
 \subsection{2-d Gaussian vs MH}
