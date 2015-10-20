@@ -63,10 +63,10 @@ m <- stan_model(model_code = 'data {
                 model {
                 x ~ multi_normal(mu, sigma);
                 }')
-d <- 150
+
 mu <- rep(0,150)
 sigma <- diag(seq(from=0.02, to=1, length = 150)^2)
-
+d <- length(mu)
 f <- sampling(m, iter = 5000,chains=2)
 var(f@sim$samples[[1]]$`x[150]`)
 hist(f@sim$samples[[1]]$`x[2]`)
