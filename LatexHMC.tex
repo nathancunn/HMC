@@ -23,9 +23,9 @@ In this report we aim to examine the properties of Hamiltonian Monte Carlo, impl
 \end{abstract}
 \newpage
 \section{Introduction}
-Hamiltonian Monte Carlo is a Markov Chain Monte Carlo method for simulating a random sample from a probability distribution which may not be feasible to simulate from directly.  \cite{neal}
+Hamiltonian Monte Carlo (HMC) is a Markov Chain Monte Carlo (MCMC) method for simulating a random sample from a probability distribution which may not be feasible to simulate from directly. While the method was first proposed by Duane et al\cite{duane}, we focus primarily on the more statistically-orientated paper by Neal\cite{neal}.
 \subsection{Aim}
-Our aims in this report are to: Implement Hamiltonian Monte Carlo in the R coding language; examine the impact of the tuning parameters, $\epsilon$ and $L$, and methods of choosing these; compare Hamiltonian Monte Carlo to the Metropolis-Hastings algorithm.
+Our aims in this report are to: Implement Hamiltonian Monte Carlo in the R coding language; examine the impact of the tuning parameters, $\epsilon$ and $L$, and methods of choosing these; compare Hamiltonian Monte Carlo to the Metropolis-Hastings (MH) algorithm.
 
 
 \subsection{Motivation}
@@ -113,7 +113,8 @@ otherwise the next state is the same as the current state.
 \subsection{Choice of $L$ and $\epsilon$}
 The HMC method is sensitive to the user-tuned parameters $L$ and $\epsilon$. In particular, if L is too small, the algorithm devolves to random walk behaviour as the random samples highly correlated. Conversely, if L is too large it is computationally wasteful.
 \section{Comparisons}
-\subsection{Two-dimensional Gaussian vs Metropolis-Hastings}
+\subsection{Bivariate Gaussian simulation}
+We first of all compared the effectiveness of the HMC method
 \begin{figure}[H]
 \center
   \includegraphics[width=5in]{images/MHvsHM_explore.pdf}
