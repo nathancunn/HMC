@@ -20,7 +20,7 @@
 \maketitle
 
 \begin{abstract}
-\noindent In this report we aim to examine the properties of Hamiltonian Monte Carlo, implement it in R and compare its effectiveness against other MCMC samplers. We also provide a R package that implements HMC, random walk Metropolis Hastings and also samples from a mixture of bivariate gaussians that resemble letters, which were constructed by the EM algorithm.   
+\noindent In this report we aim to examine the properties of Hamiltonian Monte Carlo, implement it in R and compare its effectiveness against other MCMC samplers. We also provide a R package that implements HMC, random walk Metropolis Hastings and also samples from a mixture of bivariate gaussians that resemble letters, which were constructed by using the EM algorithm.   
 \end{abstract}
 \newpage
 \section{Introduction}
@@ -65,7 +65,7 @@ where $H(\mathbf{q},\mathbf{p}) = U(\mathbf{q}) + K(\mathbf{p})$ now can be seen
 \subsection{Properties of Hamiltonian dynamics}
 We will now briefly state several important properties of the Hamiltonian, which are crucial to the HMC algorithm, before stating the relationship between the dynamics and our $P(\mathbf{q},\mathbf{p})$ density. Firstly, the the dynamics keeps the Hamiltonian invariant, i.e. the Hamiltonian remains constant, this means the mapping $T_s: (\mathbf{q}(t),\mathbf{p}(t)) \rightarrow (\mathbf{q}(t+s),\mathbf{p}(t+s))$, where the arrow represents the evolution of the system is independent of time. This brings us to the second property, which says that the mapping $T_s$ is reversible, in the sense that it is a one-to-one mapping. This reversible property is important to show the Markov chain constructed in Algorithm 1 satisfies detailed balance and hence leave the desired distribution invariant. The third important property is that Hamiltonian dynamics preserves volume in the $(\mathbf{q},\mathbf{p})$ space, in the sense that the image of $T_s$ from some region R has the same volume as region R. This property means that there is no need to account for any change in volume in the acceptance probability of Metropolis Hastings, where for general dynamics will be infeasible to compute. To understand these exact properties, see \cite{neal}.
 \subsection{Hamiltonian Dynamics and Hamiltonian Monte Carlo}
-Because of these nice properties of the Hamiltonian dynamics, we may like to construct a Hamiltonian and Markov chain that make use of these properties. This is exactly our $H(\mathbf{q},\mathbf{p})$ we defined early in equation (\ref{joint}), where we have introduced an `momentum' variable $\mathbf{p}$. Looking at the form of the Hamiltonian, we can in fact attach our previous physical interpretation of `potential' ($U(q)$) and `kinetic' energy ($U(p)$) to it. 
+Because of these nice properties of the Hamiltonian dynamics, we may like to construct a Hamiltonian and Markov chain that make use of these properties. This is exactly our $H(\mathbf{q},\mathbf{p})$ we defined earlier in equation (\ref{joint}), where we have introduced an `momentum' variable $\mathbf{p}$. Looking at the form of the Hamiltonian, we can in fact attach our previous physical interpretation of `potential' ($U(q)$) and `kinetic' energy ($K(p)$) to it. 
 \\
 \\
 As an illustration, let $P(q)$ be a univariate Gaussian, which means that $U(q)=\dfrac{q^2}{2}$. So imagine putting a particle on the energy function of this gaussian and giving it some momentum in some direction, then Hamiltonian dynamics is then exactly describing the transfer of energy between $U(q)$ and $P(q)$, as the Hamiltonian is conservative. So given sufficient energy, the particle will in fact `travel' a sufficiently `large' amount of the state space of the position vector $q$ in some time period. HMC basically make use of this by constructing a new position state from the previous position state by stopping the dynamics after initialising from previous position state and some random momentum. It is important to note here, unlike proposals in Random Walk Metropolis Hastings, due to the properties of the Hamiltonian, the acceptance probability of this new state is always 1. 
@@ -107,7 +107,7 @@ Although the volume is conserved exactly, the value of Hamiltonian is not conser
 %Thus, we can convert our distribution $P(x)$ to a canonical distribution by setting the energy function, $E(x)$ to $-logP(x)-logZ$
 \pagebreak
 \subsection{The Hamiltonian Monte Carlo Algorithm}
-We will now present the HMC algorithm and give some intuition behind the steps. An R package includes an implementation of this algorithm. 
+We will now present the HMC algorithm and give some intuition behind the steps. The R package ``AbcHMC" includes an implementation of this algorithm. 
 \begin{algorithm}
 \caption{Hamiltonian Monte Carlo}\label{euclid}
 \begin{algorithmic}[1] 
@@ -120,10 +120,10 @@ We will now present the HMC algorithm and give some intuition behind the steps. 
 \State Return to step 2 with new state for next simulation.
 \end{algorithmic}
 \end{algorithm}\\
-\noindent There are 2 main steps to the algorithm, the sampling of the momentum and the Metropolis update with a Leapfrog proposal. All these steps leave the joint distribution of ($\mathbf{q}$,$\mathbf{p}$) invariant, and hence their combination also leave the distribution of interest invariant. In the step 2, new momentum is simulated from the multivariate gaussian distribution, where commonly $\mathbf{M}$ is just the identity matrix. Due to the independence of $\mathbf{q}$ and $\mathbf{p}$ from our construction, the marginal density of $\mathbf{p}$ is exactly the conditional distribution given $\mathbf{q}$, this is in fact just a Gibbs update, and clearly this leaves the joint distribution invariant. 
+\noindent There are 2 main steps to the algorithm, the sampling of the momentum and the Metropolis update with a Leapfrog proposal. All these steps leave the joint distribution of ($\mathbf{q}$,$\mathbf{p}$) invariant, and hence their combination also leave the distribution of interest invariant. In step 2, new momentum is simulated from the multivariate gaussian distribution, where commonly $\mathbf{M}$ is just the identity matrix. Due to the independence of $\mathbf{q}$ and $\mathbf{p}$ from our construction, the marginal density of $\mathbf{p}$ is exactly the conditional distribution given $\mathbf{q}$, this is in fact just a Gibbs update, and clearly this leaves the joint distribution invariant. 
 \\
 \\
-In steps 3, we propose a new state $(\mathbf{q^{*}},\mathbf{p^{*}})$ by simulating Hamiltonian dynamics using Leapfrog with L steps and $\epsilon$ step size. The negation of momentum in step 4 ensures reversibility, although in practice this negation needs not be done as $K(\mathbf{p})=K(-\mathbf{p})$ and momentum will always be resampled in the next iteration. If we simulated the Hamiltonian dynamics perfectly, then we would always accept the new state, as we are travelling on the contours on the $(\mathbf{q},\mathbf{p})$ energy/density space, where the Hamiltonian is constant. However, due to approximation error, the Hamiltonian will not be conserved exactly, hence we will use Metropolis to correct for this, where the new state $(\mathbf{q},\mathbf{p})$ is accepted as the next state of the Markov chain with probability
+In step 3, we propose a new state $(\mathbf{q^{*}},\mathbf{p^{*}})$ by simulating Hamiltonian dynamics using Leapfrog with L steps and $\epsilon$ step size. The negation of momentum in step 4 ensures reversibility, although in practice this negation needs not be done as $K(\mathbf{p})=K(-\mathbf{p})$ and momentum will always be resampled in the next iteration. If we simulated the Hamiltonian dynamics perfectly, then we would always accept the new state, as we are travelling on the contours on the $(\mathbf{q},\mathbf{p})$ energy/density space, where the Hamiltonian is constant. However, due to approximation error, the Hamiltonian will not be conserved exactly, hence we will use Metropolis to correct for this, where the new state $(\mathbf{q},\mathbf{p})$ is accepted as the next state of the Markov chain with probability
 \begin{equation}
 M=\min \{1,\exp(-H(\mathbf{q^{*}},\mathbf{p^{*}})+H(\mathbf{q},\mathbf{p}))\} = \min\{1, \exp(-U(\mathbf{q^{*}})+U(\mathbf{q})-K(\mathbf{p^{*}})+K(\mathbf{p}))\}
 \end{equation}
@@ -181,11 +181,15 @@ To illustrate HMC, we constructed densities that resemble letters of the alphabe
 \end{figure}
 
 \noindent Our R package consists of 3 separate functions and one dataset.
-The dataset, $letter.models$, is stored as a list with 54 elements representing each of the 26 letters of the alphabet in upper and lower case along with the punctuation marks, "?", and "!". For each entry there is stored the means, covariances, and mixing proportions of the Gaussian mixture models fitted to represent this character.
-The function "HMC" generates a random sample from a given probability distribution using Hamiltonian Monte Carlo. This function takes as arguments: total.samples, the number of samples you would like generated; q.density, the probability distribution you would like to sample from; diff.density the derivative of the probability density of interest; M, the mass vector; q, the initial value for the 'position' in Hamiltonian dynamics; epsilon, the stepsize to be used in the leapfrog; L, the number of steps to be used in the leapfrog; burnin, the number of iterations of burn-in; output, whether the function should report progress and descriptive statistics on the simulated sample.
-The function "WordForm" simply recodes a single word to specify each letter's position within the letter.models dataset. It takes as input a single word as a character string.
-The function "WordPrint" takes a word and simulates from a probability distribution whose density resembles that word. It takes as inputs word, a character string; and samples, the number of draws which should be made from the distribution. This sampling is done using the HMC function above.
-
+The dataset, $letter.models$, is stored as a list with 54 elements representing each of the 26 letters of the alphabet in upper and lower case along with the punctuation marks, ``?", and ``!". For each entry there is stored the means, covariances, and mixing proportions of the Gaussian mixture models fitted to represent this character.
+\\
+\\
+The function ``HMC" generates a random sample from a given probability distribution using Hamiltonian Monte Carlo. This function takes as arguments: total.samples, the number of samples you would like generated; q.density, the probability distribution you would like to sample from; diff.density the derivative of the probability density of interest; M, the mass vector; q, the initial value for the `position' in Hamiltonian dynamics; epsilon, the step size to be used in the leapfrog; L, the number of steps to be used in the leapfrog; burnin, the number of iterations of burn-in; output (1 or 0), whether the function should report progress and descriptive statistics on the simulated sample.
+\\
+\\
+The function ``WordForm" simply recodes a single word to specify each letter's position within the letter.models dataset. It takes as input a single word as a character string.
+The function ``WordPrint" takes a word and simulates from a probability distribution whose density resembles that word. It takes as inputs word, a character string; and samples, the number of draws which should be made from the distribution. This sampling is done using the HMC function above.
+\pagebreak
 \begin{thebibliography}{9}
 
 \bibitem{neal}
