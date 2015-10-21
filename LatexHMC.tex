@@ -20,45 +20,44 @@
 \maketitle
 
 \begin{abstract}
-In this report we aim to examine the properties of Hamiltonian Monte Carlo, implement it in the R coding language, and compare its effectiveness to another method of monte carlo simulation. \ldots
+\noindent In this report we aim to examine the properties of Hamiltonian Monte Carlo, implement it in R and compare its effectiveness against other MCMC samplers. We also provide a R package that implements HMC, random walk Metropolis Hastings and also samples from a mixture of bivariate gaussians that resemble letters, which were constructed by the EM algorithm.   
 \end{abstract}
 \newpage
 \section{Introduction}
-Popular methods to simulate from a density of interest include Random Walk Metropolis-Hastings and Gibbs Sampling, however, these may have slow mixing properties, especially in a high-dimensional setting. Hamiltonian Monte Carlo (HMC) makes use of first-order gradient information of the target density and Hamiltonian dynamics, allowing us to coherently explore the state space. This is done through the introduction of auxiliary momentum variables, which allows the use of Hamiltonian dynamics to construct an ergodic markov chain, whose stationary distribution is our density of interest. 
+Popular methods to simulate from a density of interest include Random Walk Metropolis-Hastings and Gibbs Sampling, however, these may have slow mixing properties, especially in a high-dimensional setting. Hamiltonian Monte Carlo (HMC) makes use of first-order gradient information of the target density and Hamiltonian dynamics, which allows us to coherently explore the state space. This is done through the introduction of auxiliary momentum variables, which allows the use of Hamiltonian dynamics to construct a Markov chain, whose stationary distribution is our density of interest. 
 \\
 \\
-In this report, we will first give a quick overview and intuition of the HMC algorithm, which is primarily based on Neal\cite{neal} and Duane et al\cite{duane}. We will then go on to implement the algorithm in R and compare results to those obtained from from different samplers, such as random walk Metropolis Hastings, HMC and No-U-Turn Sampler (NUTS). We will also illustrate these methods on multivariate Gaussian mixture models, whose densities represent the 26 letters of the alphabets (upper and lower Case), where the mixtures were found by using the EM-algorithm on an image data set of alphabets.
+In this report, we will first give a quick overview and intuition of the HMC algorithm, which is primarily based on Neal \cite{neal} and Duane et al \cite{duane}. We will then go on to implement the algorithm in R and compare results to those obtained from from different samplers, such as random walk Metropolis Hastings and No-U-Turn Sampler (NUTS). We will also illustrate these methods on bivariate gaussian mixture models, whose densities represent the 26 letters of the alphabets (upper and lower case), where the parameters were found by using the EM-algorithm on an image data set of alphabets. Some instructions for the R package ``AbcHMC" will also be provided at the end.
 \section{Hamiltonian Monte Carlo}
 \subsection{Hamiltonian dynamics}
-We will first describe Hamiltonian dynamics, before stating how we will utilise them in the next section. Hamiltonian dynamics is the system described by a pair of differential equations with coordinates $(q,p)$, for $i=1 \dots d$
+We will begin by describing Hamiltonian dynamics, before stating how we will utilise them in the next section. Hamiltonian dynamics is the system described by a pair of differential equations with coordinates $(\mathbf{q},\mathbf{p}) \in \mathbb{R}^{2d}$.\\ For $i=1 \dots d$,
 \begin{equation}
-\frac{dq_{i}}{dt} = \frac{\delta H}{\delta p_{i}}
+\frac{dq_{i}}{dt} = \frac{\partial H}{\partial p_{i}}
 \end{equation}
 \begin{equation}
-\frac{dp_{i}}{dt} = \frac{-\delta H}{\delta q_{i}}
+\ \ \frac{dp_{i}}{dt} = -\frac{\partial H}{\partial q_{i}}
 \end{equation}
-where $H$ is called the Hamiltonian and is a function of time and $(q,p)$. This system in fact arises from Newtonian Mechanics, and has a natural interpretation in physics and in nature. If we think of $(q(t),p(t))$ as 2 dimensional position and momentum  vectors at time t respectively and the Hamiltonian as the simply the sum of the kinetic (function of momentum) and potential energy (function of its position), we can just think of the equations as describing the evolution of a friction less particle over time. We will now set up our notation and the introduce the idea of an energy function.
+where $H$ is called the Hamiltonian and is a function of time and $(\mathbf{q},\mathbf{p})$. This system in fact arises from Newtonian Mechanics, and has a natural interpretation in physics. If we think of $(\mathbf{q}(t),\mathbf{p}(t))$ as 2 dimensional position and momentum  vectors at time t respectively and the Hamiltonian as simply the sum of the kinetic (function of $\mathbf{p}$) and potential energy (function of $\mathbf{q}$), we can just think of the equations as describing the evolution of a frictionless particle over time. We will now set up our notation and the introduce the idea of an energy function.
 \subsection{Target Density and Energy Function}
 We first define our target density to be of the form (without normalising constant):
 \begin{equation}
-P(q)= \pi(q)L(q|D) \quad \quad q \in \mathbb{R}^{d}
+P(\mathbf{q})= \pi(\mathbf{q})L(\mathbf{q}|D) \quad \quad q \in \mathbb{R}^{d}
 \end{equation}
-where $\pi(q)$ is the prior density and $L(q|D)$ is the likelihood given data $D$. 
-We also define $q$ to be the `position' vector in $d$ dimensions. Now, from statistical mechanics, given some energy function $E(x)$ in some system, we can express its canonical distribution as:
+where $\pi(\mathbf{q})$ is the prior density and $L(\mathbf{q}|D)$ is the likelihood given data $D$. 
+We also define $\mathbf{q}$ to be the `position' vector in $d$ dimensions. Now, from statistical mechanics, given some energy function $E(x)$ in some system, we can express its canonical distribution as say:
 \begin{equation}
 \label{energy}
-Pr(x) = \frac{1}{Z}exp(-E(x)/T)
+Pr(x) = \frac{1}{N}\exp(-E(x)/T)
 \end{equation}
-where $T$ is the temperature of the system (which we assume to be 1) and $Z$ is a normalising constant. By considering this, we define the energy of our target density as:
+where $T$ is the temperature of the system (which we assume to be 1) and $N$ is a normalising constant. By considering this, we can define the energy of our target density as:
 \begin{equation}
-U(q) = -log[\pi(q)L(q|D)]
+U(\mathbf{q}) = -\log [\pi(\mathbf{q})L(\mathbf{q}|D)]
 \end{equation}
-We now introduce an auxiliary variable $p$ (`momentum' in $d$ dimensions), which we define to have energy function $K(p)$, which using equation (\ref{energy}) has in turn a density function $Q(p)$ say. We then define the joint density of $(p,q)$ as 
+We now introduce an auxiliary variable $\mathbf{p}$ (which we denote as `momentum' in $d$ dimensions), which we define to have energy function $K(\mathbf{p})$, which using equation (\ref{energy}) has in turn a density function $Q(\mathbf{p})$ say. We then define the joint density of $(\mathbf{q},\mathbf{p})$ with normalising constant $Z$ as 
 \begin{equation}
-P(q,p) = \frac{1}{Z}exp(-U(q)/T)exp(-K(p)/T) = \frac{1}{Z}exp(-H(q,p)/T)
+P_{\text{joint}}(\mathbf{q},\mathbf{p}) = \frac{1}{Z}\exp(-U(\mathbf{q})/T)\exp(-K(\mathbf{p})/T) = \frac{1}{Z}\exp(-H(\mathbf{q},\mathbf{p})/T)
 \end{equation}
-where $H(q,p) = U(q) + K(p)$ now can be seen as the energy function for the joint state $(q,p)$ distribution. The construction of independence between $q$ and $p$ may seem meaningless at first, but this introduction enables us to use Hamiltonian Dynamics, which has some important properties that is crucial to our construction of the Markov chain.
-%allows easy extraction of samples from $P(q)$ and we remark that the introduction of $p$ 
+where $H(\mathbf{q},\mathbf{p}) = U(\mathbf{q}) + K(\mathbf{p})$ now can be seen as the energy function for the joint state $(\mathbf{q},\mathbf{p})$ distribution. The construction of independence between $\mathbf{q}$ and $\mathbf{p}$ may seem meaningless at first, but this introduction actually enables us to use Hamiltonian Dynamics, which has properties that is crucial to our construction of the Markov chain. This independence of $\mathbf{q}$ and $\mathbf{p}$ also allows us to easily extract samples with respect to $P(\mathbf{q})$.
 
 \subsection{Properties of Hamiltonian dynamics}
 We will now briefly state several important properties of the Hamiltonian, which are crucial to the HMC algorithm, before stating the relationship between the dynamics and our $P(q,p)$ density. Firstly, the the dynamics keeps the Hamiltonian invariant, i.e. the Hamiltonian is constant, this means the mapping $T_s: (q(t),p(t)) \rightarrow (q(t+s),p(t+s))$, where the arrow represents the evolution of the system is independent of time. This brings us to the second property, which says that the mapping $T_s$ is reversible, in the sense that it is a one to one mapping. This reversible property is important to show the Markov chain constructed in Algorithm () satisfies detail balance and hence leave the desired distribution invariant. The third important property is that Hamiltonian dynamics preserves volume in the $(q,p)$ space, in the sense that the image of $T_s$ to some region R has the same volume as region R. This property means that there is no need to account for any change in volume in the acceptance probability of Metropolis Hastings, where for general dynamics will be infeasible to compute. To understand these exact properties and how they are used in the proof of this algorithm, see .
@@ -158,12 +157,19 @@ We will now illustrate the behaviour of random-walk Metropolis, HMC and NUTS on 
   \includegraphics[width=5in]{images/MHvsHM_varcoord.pdf}
   \caption{Sample Variance against the Real Variance of a multivariate gaussian in 150 dimensions with 1000 samples}
 \end{figure}
-From looking at different trace and auto-correlation plots for different variables, one can clearly see much higher correlation between samples in the random walk Metropolis compared to the HMC (refer to package). Figure 2 and Figure 3 shows the sample mean and sample variance of the 1000 iterations obtained, clearly HMC outperforms MH. Further experimentation can show that even with thinning of 300 samples, HMC still outperforms MH. The results show that HMC outperforms the Metropolis Hastings in this case, this is not very surprising, as in high dimensions, intuitively it is very difficult for it to propose a point that is likely to be accepted. In fact in paper, it is shown that the computational time needed for HMC grows proportionally to $d^{5/4}$, while random walk Metropolis grows as $d^{2}$. However, tuning the parameters is not an easy task, especially in high dimensions and especially when you have no information about the shape of the target density. Below is an illustration of NUTS, as implemented in RStan, where the only information you have to provide it is the density, the differentiation and auto-tuning of all the parameters is chosen. 
-
-\cite{rstan}
-\subsection{Normal mixture models}
-We compared the performance of our model to that of the Metropolis-Hastings algorithm and the NUTS method, as implemented in RStan
-
+From looking at different trace and auto-correlation plots for different variables, one can clearly see much higher correlation between samples in the random walk Metropolis compared to the HMC (refer to package). Figure 2 and Figure 3 shows the sample mean and sample variance of the 1000 iterations obtained, clearly HMC outperforms MH. Further experimentation can show that even with thinning of 300 samples, HMC still outperforms MH. The results show that HMC outperforms the Metropolis Hastings in this case, this is not very surprising, as in high dimensions, intuitively it is very difficult for it to propose a point that is likely to be accepted. In fact in paper, it is shown that the computational time needed for HMC grows proportionally to $d^{5/4}$, while random walk Metropolis grows as $d^{2}$. However, tuning the parameters is not an easy task, especially in high dimensions and especially when you have no information about the shape of the target density. Below is an illustration of NUTS, as implemented in RStan \cite{rstan}, where the only information you have to provide it is the density, the differentiation and auto-tuning of all the parameters is chosen. The results obtained is roughly equivalently to that oh using HMC, as seen in figure 4, but investigation into the $L$ and step sizes for each sample showed that for many of the samples, a much bigger step size and a much smaller L were used most of the time compared to our tuned HMC, so we could be potentially wasting a lot of computational power.
+\begin{figure}[H]
+\center
+  \includegraphics[width=5in]{images/NUTS_comparisons.pdf}
+  \caption{Sample Variance against the Real Variance of a multivariate gaussian in 150 dimensions with 1000 samples using NUTS with RStan}
+\end{figure}
+\subsection{Normal mixture models: Alphabets and EM}
+To illustrate HMC, we constructed densities that resembles the letters of the alphabets (upper and lower case with ? and !), as random-walk MH as illustrated earlier performs poorly on gaussians with a high correlation. We constructed the densities automatically by applying the EM algorithm on the parameters of the mixture of gaussians (where K the number of mixture was pre-specified visually) using the package in R and an image data-set created. By specifying a word into our package "ABCHamMC", it will simulate samples using HMC from a mixture of bivariate gaussian, where each letter has the same weights and each letter contains a mixture of bivariate gaussians found from the EM algorithm. Instead of simulating directly from the density, each mixture in each letter was chosen with probability equal to their weights before simulation with HMC, this is because of the multi-modality of the density, that is still a problem for most MCMC methods, including HMC (see .. on how to deal with this). One way to deal with this multi-modal in this case would be to increase the number of mixture of gaussians to `fill in the gaps', but the EM algorithm struggles to converge in this case. Below is the word "OxWaSP" using 1500 samples from HMC ($\epsilon=0.05$, $L=60$) and similar for random Walk Metropolis Hastings using an uniform proposal without thinning. Because it is simulated by using weights, MH in fact performs equally well when thinning of say 15 is used.
+\begin{figure}[H]
+\center
+  \includegraphics[width=5in]{images/oxwasp.pdf}
+  \caption{1500 Samples of mixture of bivariate gaussians with parameters chosen by the EM algorithm, where the different colours corresponds to a different mixture of the gaussian}
+\end{figure}
 \begin{thebibliography}{9}
 
 \bibitem{neal}
