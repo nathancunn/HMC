@@ -14,7 +14,8 @@ all.letters$letter[i] <- letter.models[[i]]$letter
 wordform <- function(word) {
   # Split the word into individual characters
   chars <- strsplit(word, "")[[1]]
-  out <- matrix(0, nrow=length(chars)) 
+  out <- matrix(0, nrow=length(chars))
+  # Map each letter to its key
   for(i in 1:length(chars)) {
     if(any(all.letters$key[all.letters$letter==chars[i]])) {
     out[i,1] <- all.letters$key[all.letters$letter==chars[i]]
@@ -27,8 +28,9 @@ wordform <- function(word) {
 
 # Below this is probably not necessary
 
+# Adjusting the alignment of lower case letters
 for(i in 1:26) {
-  atts <- (length(letter.models[[1]][[1+2*i]])-1)/3
+  atts <- (length(letter.models[[1+2*i]])-1)/3
   for(j in 1:atts){
     letter.models[[1+(i*2)]][1+atts+j][[1]] <- letter.models[[1+(i*2)]][1+atts+j][[1]]+c(0,+2)
   }
