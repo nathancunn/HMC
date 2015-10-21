@@ -74,10 +74,9 @@ WordPrint <- function(word,samples) {
   # Store a unique colour for each mixture to see where the mixtures are
   out[i,3:5] <- c(letter/n,group/6,0.2)
   }
-  out
+  plot(out[,1],out[,2],col=rgb(out[,3],out[,4],out[,5]))
+  return(out)
 }
-
-oxwasp <- WordPrint("OxWaSP",2500)
-plot(oxwasp[,1],oxwasp[,2],col=rgb(oxwasp[,3],oxwasp[,4],oxwasp[,5]))
+WordPrint("OxWasp",2500)
 
 
