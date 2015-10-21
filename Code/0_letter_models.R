@@ -69,7 +69,7 @@ for (i in 1:54) {
                 sigma = gauss.mix$sigma)
 }
 
-# After running store the output
+# After running store the output in the parent directory
 dput(out,file="../output")
 
 
