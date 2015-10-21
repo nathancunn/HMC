@@ -16,9 +16,11 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
   d <- length(q) # Dimensions
   # The elements of p are assumed independent, hence use column sums
   if(length(M)>1){mass.vector <- colSums(M)} else mass.vector <- M
-  #Use in leapfrog
-  N <- total.samples+burnin; #How many samples will be needed
+
+  N <- total.samples+burnin
+  # Set a progress bar
   pb <- txtProgressBar(min = 0, max = N, style = 3);
+  
   old.h=rep(0,N);
   proposal.h=rep(0,N);
   samples <- matrix(0,N,d);
@@ -46,26 +48,29 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
       p.epsilon <- p.epsilon.half - (epsilon/2) * as.vector(diff.density(q.epsilon))
     }
     
-    
-    old.u <- -log(q.density(init.q));
-    #Energy of target q.density at old state
-    old.k= sum((init.p^2/mass.vector))/2;
-    #Energy of momentum at Old state
-    old.h[k]= old.u+old.k;
-    #Old Hamiltonian
-    proposal.u= -log(q.density(q.epsilon));
-    proposal.k=sum((p.epsilon^2)/mass.vector)/2;
-    #Propose Energy 
-    proposal.h[k]=proposal.u+proposal.k;
-    #Propose Hamiltonian
-    if (runif(1)< exp(old.h[k]-proposal.h[k])) {
-      init.p=p.epsilon;
-      init.q=q.epsilon;
-      #Metropolis Hastings, if accepted move to new state
+    # Potential energy at old state
+    old.u <- -log(q.density(init.q))
+    # Kinetic energy at old state
+    old.k <- sum((init.p^2/mass.vector))/2
+    # Old Hamiltonian
+    old.h[k] <- old.u+old.k
+    # The energies at the proposed states
+    proposal.u <- -log(q.density(q.epsilon))
+    proposal.k <- sum((p.epsilon^2)/mass.vector)/2
+    # The Hamiltonian at the proposed state
+    proposal.h[k] <- proposal.u+proposal.k
+    # The Metropolis step for accepting the proposed new state
+    if (runif(1) < exp(old.h[k]-proposal.h[k])) {
+      # Accept proposed state
+      init.p=p.epsilon
+      init.q=q.epsilon
     }
-    else {q.epsilon=init.q;
-    rejections= rejections+1;
+    else {
+    # Stay at current state and increase rejections tally
+    q.epsilon=init.q
+    rejections= rejections+1
     }
+    # Update the samples and advance the progress bar
     samples[k,] <- init.q;
     setTxtProgressBar(pb, k)
   }
