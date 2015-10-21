@@ -1,6 +1,6 @@
 # Some examples
 # Sampling from a univariate standard Gaussian
-out.univariate <- HMC(total.samples = 1000, 
+out.univariate <- HMC(total.samples = 10000, 
                       q.density = function(x) dnorm(x,0,1), 
                       M=1, 
                       q = 0, 

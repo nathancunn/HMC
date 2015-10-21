@@ -26,23 +26,16 @@ WordForm <- function(word) {
 
 
 
-# Below this is probably not necessary
 
-# Adjusting the alignment of lower case letters
-for(i in 1:26) {
-  atts <- (length(letter.models[[1+2*i]])-1)/3
-  for(j in 1:atts){
-    letter.models[[1+(i*2)]][1+atts+j][[1]] <- letter.models[[1+(i*2)]][1+atts+j][[1]]+c(0,+2)
-  }
-}
-
-
-WordPrint <- function(word,lastValueH) {
+WordPrint <- function(word,samples) {
   letters.key <- WordForm(word)
+  last.h = array(0,c(nchar(word),7,2))
+  out <- matrix(0,nrow=samples,ncol=2)
   n <- length(letters.key)
   # Give each letter equal weight
   eq_probs <- seq(1/n,1,length=n)
   # Randomly go to a single letter
+  for (i in 1:samples) {
   letter <- findInterval(runif(1),eq_probs)+1
   j <- letters.key[letter]
   # Displace letters so they can be seen side-by-side
@@ -51,18 +44,29 @@ WordPrint <- function(word,lastValueH) {
   atts <- (length(letter.models[[j]])-1)/3
   # Find the mixing proportions
   lambdas <- cumsum(letter.models[[j]][2:(2+atts-1)])
-  # Go to one component based on its lambda
+  # Go to one component based on its lambda probability
   group <-  findInterval(runif(1),lambdas)+1
   # Extract the (displaced) mean and variances for this component
   mean.group <- letter.models[[j]][1+atts+group][[1]]+c(displacement[letter],0)
   var.group <- letter.models[[j]][1+2*atts+group][[1]]
-  # If the
-  if (lastValueH[letter,group,1]==0 & lastValueH[letter,group,2]==0)
-  {lastValueH[letter,group,]=as.vector(mean.group)}
-  #If no starting value, use the mean
-  FinalOutput=HMCVer1(1,densityA = function(l) dmvnorm(l,as.vector(mean.group),var.group),q = as.vector(lastValueH[letter,group,]),M=diag(2),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(var.group)%*%(as.matrix(x)-as.matrix(mean.group))}, burnin = 0)
-  #Use Metropolis Hasting algorithm, use the last position.
-  #points(rmvnorm(1,mu = mean.group, sigma = var.group),cex=0.75,col=cols[letter]) 
-  (list(FinalOutput,letter,group))
+  # If we have no initial value set them to the prior mean
+  if (last.h[letter,group,1]==0 & last.h[letter,group,2]==0) {
+    last.h[letter,group,]=as.vector(mean.group)
+  }
+  out[i,] <- HMC(total.samples = 1,
+             q.density = function(l) dmvnorm(l,as.vector(mean.group),var.group), 
+             q = as.vector(last.h[letter,group,]), M=diag(2),
+             epsilon = 0.05, 
+             L = 60,
+             diff.density = function(x) {
+               solve(var.group)%*%(as.matrix(x)-as.matrix(mean.group))}, 
+             burnin = 0, output = 0)
+  last.h[letter,group,] <- out[i,]
+  }
+  out
 }
+
+plot(WordPrint("OxWaSP",1000))
+
+
 

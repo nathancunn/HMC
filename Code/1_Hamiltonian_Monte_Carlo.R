@@ -1,6 +1,6 @@
 libs <- list("MASS","mvtnorm")
 lapply(libs,library,character.only = T)
-HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin) {
+HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin, output = 1) {
   # Arguments
   # total.samples - the number of simulations you'd like output
   # q.density - the density of interest to sample from
@@ -10,6 +10,7 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
   # L - the number of leapfrog iterations
   # diff.density - the derivative of the density to sample from
   # burnin - the burn-in
+  # Output - whether you want text output
   init.epsilon <- epsilon
   rejections <- 0
   init.q <-q.epsilon <- q # Initialisation of q and q.epsilon
@@ -19,13 +20,12 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
 
   N <- total.samples+burnin
   # Set a progress bar
-  pb <- txtProgressBar(min = 0, max = N, style = 3);
-  
-  old.h=rep(0,N);
-  proposal.h=rep(0,N);
-  samples <- matrix(0,N,d);
+  if(output==1) {pb <- txtProgressBar(min = 0, max = N, style = 3)}
+  old.h=rep(0,N)
+  proposal.h=rep(0,N)
+  samples <- matrix(0,N,d)
   #For allocation of memory
-  p <- mvrnorm(N,rep(0,d),M); 
+  p <- mvrnorm(N,rep(0,d),M);
   #Generate momentum for multivariate normal, this is an N by d quantity. I generate all at once here.
   for (k in 1:N){
     if (N==1){
@@ -72,8 +72,9 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
     }
     # Update the samples and advance the progress bar
     samples[k,] <- init.q;
-    setTxtProgressBar(pb, k)
   }
+  if(output==1){
+  setTxtProgressBar(pb, k)
   cat("Total samples after Burn in:", total.samples, 
       "\nStep Size used was (+-20%)", init.epsilon, 
       "\nLeapFrog iterations were", L, 
@@ -83,6 +84,7 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
   #after=Sys.time()-now;
   #print(after)
   close(pb)
+  }
   samples[((burnin+1):N),]
 }
 
