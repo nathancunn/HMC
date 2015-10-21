@@ -11,7 +11,7 @@ all.letters$letter[i] <- letter.models[[i]]$letter
 }
 
 # A function to map letters from a word according to the key
-wordform <- function(word) {
+WordForm <- function(word) {
   # Split the word into individual characters
   chars <- strsplit(word, "")[[1]]
   out <- matrix(0, nrow=length(chars))
@@ -35,64 +35,34 @@ for(i in 1:26) {
     letter.models[[1+(i*2)]][1+atts+j][[1]] <- letter.models[[1+(i*2)]][1+atts+j][[1]]+c(0,+2)
   }
 }
-  
-Wordprint <- function(word,lastValueH) {
-  #TRY44<<-lastValueH
-  letters <- wordform(word)
-  n <- length(letters)
+
+
+WordPrint <- function(word,lastValueH) {
+  letters.key <- WordForm(word)
+  n <- length(letters.key)
+  # Give each letter equal weight
   eq_probs <- seq(1/n,1,length=n)
-  letter <<- findInterval(runif(1),eq_probs)+1
-  j <- letters[letter]
+  # Randomly go to a single letter
+  letter <- findInterval(runif(1),eq_probs)+1
+  j <- letters.key[letter]
+  # Displace letters so they can be seen side-by-side
   displacement <- (0:(n-1))*18-20
-  #for (l in 1:SampleSize) {
-  #for (k in 1:n) {
-  #j=letters[k]
-  atts <- (length(A[[1]][[j]])-1)/3
-  lambdas <- cumsum(A[[1]][[j]][2:(2+atts-1)])
-  group <<-  findInterval(runif(1),lambdas)+1
-  mean.group <- A[[1]][[j]][1+atts+group][[1]]+c(displacement[letter],0)
-  var.group <- A[[1]][[j]][1+2*atts+group][[1]]
-  #TRY<<-lastValueH
-  #TRY1<<-letter
-  #TRY2<<-group
+  # Extract the number of components the letter is made of 
+  atts <- (length(letter.models[[j]])-1)/3
+  # Find the mixing proportions
+  lambdas <- cumsum(letter.models[[j]][2:(2+atts-1)])
+  # Go to one component based on its lambda
+  group <-  findInterval(runif(1),lambdas)+1
+  # Extract the (displaced) mean and variances for this component
+  mean.group <- letter.models[[j]][1+atts+group][[1]]+c(displacement[letter],0)
+  var.group <- letter.models[[j]][1+2*atts+group][[1]]
+  # If the
   if (lastValueH[letter,group,1]==0 & lastValueH[letter,group,2]==0)
-    {lastValueH[letter,group,]=as.vector(mean.group)}
+  {lastValueH[letter,group,]=as.vector(mean.group)}
+  #If no starting value, use the mean
   FinalOutput=HMCVer1(1,densityA = function(l) dmvnorm(l,as.vector(mean.group),var.group),q = as.vector(lastValueH[letter,group,]),M=diag(2),epsilon = 0.05,L = 60,densitydiff = function(x) {solve(var.group)%*%(as.matrix(x)-as.matrix(mean.group))}, burnin = 0)
-  #points(rmvnorm(1,mu = mean.group, sigma = var.group),cex=0.75,col=cols[letter])
-(list(FinalOutput,letter,group))
-}
-WordOutputAll= function(Word,SampleSize,cols=NULL){
-  plot.new()
-  FinalOutput=matrix(0,SampleSize,2);
-  #plot.window(xlim=c(-10,50), ylim=c(0,20))
-  if(is.null(cols)) {cols=rep(1,n)}
-  length.of.string <-nchar(Word);
-  LastValueG <<- array(0,c(length.of.string,6,2));
-  for (i in 1:SampleSize) {
-  OutputOnce<-Wordprint(Word,LastValueG)
-  FinalOutput[i,]=OutputOnce[[1]]
-  LastValueG[OutputOnce[[2]],OutputOnce[[3]],]=FinalOutput[i,]
-  #if (i==1){
-  #plot(FinalOutput[i,],cex=0.75,col="black")}
-  #else {
-  #points(FinalOutput[i,],cex=0.75,col="black")
-  #}
-  }
-  FinalOutputMinX=min(FinalOutput[,1])
-  FinalOutputMinY=min(FinalOutput[,2])
-  FinalOutputMaxX=max(FinalOutput[,1])
-  FinalOutputMaxY=max(FinalOutput[,2])
-  #quartz()
-  #plot(FinalOutput[1,],cex=0.75,xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2))
-  #Sys.sleep(1)
-  #for (i in 2:SampleSize){
-  #points(FinalOutput[i,1],FinalOutput[i,2],cex=0.75,col="black",xlim=c(FinalOutputMinX-2,FinalOutputMaxX+2),ylim=c(FinalOutputMinY-2,FinalOutputMaxY+2)) }
-  #Sys.sleep(0.01)
-  FinalOutput
-}
-plot(0:50,0:50,type="n",asp=1,bty="n",xaxt="n",yaxt="n",ann=F)
-for(i in 1:10000) {
-  WordPrint("Hello",cols=c(rep("#014FDC",4),rep("#01A401",2)))
-  #WordPrint("mMC",cols=c(rep("#014FDC",4),rep("#01A401",2)))
+  #Use Metropolis Hasting algorithm, use the last position.
+  #points(rmvnorm(1,mu = mean.group, sigma = var.group),cex=0.75,col=cols[letter]) 
+  (list(FinalOutput,letter,group))
 }
 
