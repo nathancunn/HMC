@@ -32,9 +32,11 @@ In this report, we will first give a quick overview and intuition of the HMC alg
 \subsection{Hamiltonian dynamics}
 We will begin by describing Hamiltonian dynamics, before stating how we will utilise them in the next section. Hamiltonian dynamics is the system described by a pair of differential equations with coordinates $(\mathbf{q},\mathbf{p}) \in \mathbb{R}^{2d}$.\\ For $i=1 \dots d$,
 \begin{equation}
+\label{Ham1}
 \frac{dq_{i}}{dt} = \frac{\partial H}{\partial p_{i}}
 \end{equation}
 \begin{equation}
+\label{Ham2}
 \ \ \frac{dp_{i}}{dt} = -\frac{\partial H}{\partial q_{i}}
 \end{equation}
 where $H$ is called the Hamiltonian and is a function of time and $(\mathbf{q},\mathbf{p})$. This system in fact arises from Newtonian Mechanics, and has a natural interpretation in physics. If we think of $(\mathbf{q}(t),\mathbf{p}(t))$ as 2 dimensional position and momentum  vectors at time t respectively and the Hamiltonian as simply the sum of the kinetic (function of $\mathbf{p}$) and potential energy (function of $\mathbf{q}$), we can just think of the equations as describing the evolution of a frictionless particle over time. We will now set up our notation and the introduce the idea of an energy function.
@@ -55,32 +57,33 @@ U(\mathbf{q}) = -\log [\pi(\mathbf{q})L(\mathbf{q}|D)]
 \end{equation}
 We now introduce an auxiliary variable $\mathbf{p}$ (which we denote as `momentum' in $d$ dimensions), which we define to have energy function $K(\mathbf{p})$, which using equation (\ref{energy}) has in turn a density function $Q(\mathbf{p})$ say. We then define the joint density of $(\mathbf{q},\mathbf{p})$ with normalising constant $Z$ as 
 \begin{equation}
+\label{joint}
 P_{\text{joint}}(\mathbf{q},\mathbf{p}) = \frac{1}{Z}\exp(-U(\mathbf{q})/T)\exp(-K(\mathbf{p})/T) = \frac{1}{Z}\exp(-H(\mathbf{q},\mathbf{p})/T)
 \end{equation}
 where $H(\mathbf{q},\mathbf{p}) = U(\mathbf{q}) + K(\mathbf{p})$ now can be seen as the energy function for the joint state $(\mathbf{q},\mathbf{p})$ distribution. The construction of independence between $\mathbf{q}$ and $\mathbf{p}$ may seem meaningless at first, but this introduction actually enables us to use Hamiltonian Dynamics, which has properties that is crucial to our construction of the Markov chain. This independence of $\mathbf{q}$ and $\mathbf{p}$ also allows us to easily extract samples with respect to $P(\mathbf{q})$.
 
 \subsection{Properties of Hamiltonian dynamics}
-We will now briefly state several important properties of the Hamiltonian, which are crucial to the HMC algorithm, before stating the relationship between the dynamics and our $P(q,p)$ density. Firstly, the the dynamics keeps the Hamiltonian invariant, i.e. the Hamiltonian is constant, this means the mapping $T_s: (q(t),p(t)) \rightarrow (q(t+s),p(t+s))$, where the arrow represents the evolution of the system is independent of time. This brings us to the second property, which says that the mapping $T_s$ is reversible, in the sense that it is a one to one mapping. This reversible property is important to show the Markov chain constructed in Algorithm () satisfies detail balance and hence leave the desired distribution invariant. The third important property is that Hamiltonian dynamics preserves volume in the $(q,p)$ space, in the sense that the image of $T_s$ to some region R has the same volume as region R. This property means that there is no need to account for any change in volume in the acceptance probability of Metropolis Hastings, where for general dynamics will be infeasible to compute. To understand these exact properties and how they are used in the proof of this algorithm, see .
+We will now briefly state several important properties of the Hamiltonian, which are crucial to the HMC algorithm, before stating the relationship between the dynamics and our $P(\mathbf{q},\mathbf{p})$ density. Firstly, the the dynamics keeps the Hamiltonian invariant, i.e. the Hamiltonian remains constant, this means the mapping $T_s: (\mathbf{q}(t),\mathbf{p}(t)) \rightarrow (\mathbf{q}(t+s),\mathbf{p}(t+s))$, where the arrow represents the evolution of the system is independent of time. This brings us to the second property, which says that the mapping $T_s$ is reversible, in the sense that it is a one to one mapping. This reversible property is important to show the Markov chain constructed in Algorithm 1 satisfies detail balance and hence leave the desired distribution invariant. The third important property is that Hamiltonian dynamics preserves volume in the $(\mathbf{q},\mathbf{p})$ space, in the sense that the image of $T_s$ from some region R has the same volume as region R. This property means that there is no need to account for any change in volume in the acceptance probability of Metropolis Hastings, where for general dynamics will be infeasible to compute. To understand these exact properties, see \cite{neal}.
 \subsection{Hamiltonian Dynamics and Hamiltonian Monte Carlo}
-Because of these nice properties of the Hamiltonian dynamics, we may like to construct a Hamiltonian and Markov chain that make use of these properties. This is exactly our $H(q,p)$ we defined early in equation (), where we have introduced an `momentum' variable p. Looking at the form of the Hamiltonian, we can in fact attach our previous physical interpretation of `potential' ($U(q)$) and 'kinetic' energy ($U(p)$) to it. 
+Because of these nice properties of the Hamiltonian dynamics, we may like to construct a Hamiltonian and Markov chain that make use of these properties. This is exactly our $H(\mathbf{q},\mathbf{p})$ we defined early in equation (\ref{joint}), where we have introduced an `momentum' variable $\mathbf{p}$. Looking at the form of the Hamiltonian, we can in fact attach our previous physical interpretation of `potential' ($U(q)$) and `kinetic' energy ($U(p)$) to it. 
 \\
 \\
-As an illustration, let $P(q)$ be an univariate gaussian, which means $U(q)=\frac{q^2}{2}$. So now imagine we put a particle on the energy function of this gaussian and give it some momentum in some direction, then Hamiltonian dynamics is then exactly describing the transfer of energy between $U(q)$ and $P(q)$, as the Hamiltonian is conservative. So given sufficiently energy, the particle will in fact `travel' a sufficiently `large' amount of the state space of the position vector $q$ in some time period. HMC basically make use of this by constructing a new position state from the previous position state by stoping the dynamics after initialising from previous position state and some random momentum. It is important to note here, unlike proposals in Random Walk Metropolis Hastings, due to the properties of the Hamiltonian, the acceptance probability of this new state is always 1. 
+As an illustration, let $P(q)$ be an univariate gaussian, which means that $U(q)=\dfrac{q^2}{2}$. So imagine putting a particle on the energy function of this gaussian and giving it some momentum in some direction, then Hamiltonian dynamics is then exactly describing the transfer of energy between $U(q)$ and $P(q)$, as the Hamiltonian is conservative. So given sufficiently energy, the particle will in fact `travel' a sufficiently `large' amount of the state space of the position vector $q$ in some time period. HMC basically make use of this by constructing a new position state from the previous position state by stoping the dynamics after initialising from previous position state and some random momentum. It is important to note here, unlike proposals in Random Walk Metropolis Hastings, due to the properties of the Hamiltonian, the acceptance probability of this new state is always 1. 
 \\
 \\
-This allows for coherent exploration of the state space, and in fact this exploration can be thought of as  travelling along the contours of the $-log( P(q,p)$ or equivalently the Hamiltonian energy function $H(q,p)$ due to the conservation of the Hamiltonian dynamics and the 'jump' between the contours of the energy levels is done by sampling momentum with respect to the corresponding density function of $K(p)$ This replacement of $p$ can change the probability density of $(q,p)$ by a lot amount, hence also for $U(q)$, allowing exploration.
+This allows for coherent exploration of the state space, and in fact this exploration can be thought of as travelling along the contours of the $-\log P(\mathbf{q},\mathbf{p})$ or equivalently the Hamiltonian energy function $H(\mathbf{q},\mathbf{p})$ due to the conservation of the Hamiltonian dynamics and the `jump' between the contours of the energy levels is done by sampling momentum with respect to the corresponding density function of $K(\mathbf{p})$. This replacement of $\mathbf{p}$ can change the probability density of $(\mathbf{q},\mathbf{p})$ by a large amount, hence also for $P(\mathbf{q})$, allowing exploration.
 \\
 \\
-We have yet to specify the energy function $K(p)$, but in theory most positive functions can be chosen. A common choice is to use the energy function from a multivariate gaussian with mean bold 0 and diagonal covariance matrix $M$.
+We have yet to specify the energy function $K(\mathbf{p})$, but in theory most positive functions can be chosen. A common choice is to use the energy function from a multivariate gaussian with mean $\mathbf{0}$ and diagonal covariance matrix $\mathbf{M}$, with $m_{i}$ along the diagonals.
 \begin{equation}
-K(p) = \sum_{i=1}^{d} \frac{p_{i}^{2}}{2m_{i}}
+K(\mathbf{p}) = \sum_{i=1}^{d} \frac{p_{i}^{2}}{2m_{i}}
 \end{equation}
-Some reasons why this is chosen is because at every step of the Markov chain, the momentum is resampled from the density function with respect to $K(p)$ and a gaussian can be easily simulated. Also, it is also only intuitive to choose a symmetric density with an infinite support to encourage mixing of the chain, furthermore this has a very nice interpretable physical meaning, being exactly the kinetic energy form we observe in nature. 
+Some reasons why this is chosen is because at every step of the Markov chain, the momentum has to be resampled from the density function with respect to the energy function $K(\mathbf{p})$ and a gaussian can be easily simulated. Also, it is also only intuitive to choose a symmetric density with an infinite support to encourage mixing of the chain, furthermore this has a very nice interpretable physical meaning, being exactly the kinetic energy form we observe in nature. 
 \subsection{The Leapfrog}
-In general, a solution to the Hamiltonian dynamics given an arbitrary Hamiltonian of the form $H(q,p) = U(q) + K(p)$ cannot be computed analytically. Hence we discretise the time in equation () and () with some small step size $\epsilon$ and approximate the solution to the equations using the leapfrog method:
-First advance the momentum by one half-step:
+In general, a solution to the Hamiltonian dynamics given by an arbitrary Hamiltonian of the form $H(\mathbf{q},\mathbf{p}) = U(\mathbf{q}) + K(\mathbf{p})$ cannot be computed analytically. Hence, we discretise the time in equation (\ref{Ham1}) and (\ref{Ham2}) with some small step size $\epsilon$ and we approximate the solution to the equations using the leapfrog method:
+\\ For $i=1\dots d$, first advance the momentum by one half-step:
 \begin{equation}
-p_{i}(t+\epsilon/2) = p_{i}(t) - (\epsilon/2)\frac{\delta U}{\delta q_{i}}(q(t))
+p_{i}(t+\epsilon/2) = p_{i}(t) - (\epsilon/2)\frac{\partial U}{\partial q_{i}}(\mathbf{q}(t))
 \end{equation}
 then advance the position by a full-step using the updated momentum:
 \begin{equation}
@@ -88,13 +91,13 @@ q_{i}(t+\epsilon) = q_{i}(t) - (\epsilon)\frac{p_{i}(t+\epsilon/2)}{m_{i}}
 \end{equation}
 And finally advance the momentum one half-step using the updated position:
 \begin{equation}
-p_{i}(t+\epsilon) = p_{i}(t+\epsilon/2) - (\epsilon/2)\frac{\delta U}{\delta q_{i}}(q(t+\epsilon))
+p_{i}(t+\epsilon) = p_{i}(t+\epsilon/2) - (\epsilon/2)\frac{\partial U}{\partial q_{i}}(\mathbf{q}(t+\epsilon))
 \end{equation}
-Iterate over this process $L$ (Leaps) times to travel a time of $L\epsilon$.
-Note this method in fact preserves volume exactly, as each step is just a shear transformation, and furthermore it is also reversible, by simply negating p and reapplying the steps. For more details on the local and global error and comparison to the Euler's Method, see >>.
+Iterating over this process $L$ (Leaps) times simulates the dynamics for a time of $L\epsilon$.
+Note this method in fact preserves volume exactly, as each step is just a shear transformation, and furthermore it is also reversible, by simply negating p and reapplying the steps. For more details on the local and global error and comparison to the Euler's Method, see \cite{neal}.
 \\
 \\
-Although the volume is conserved exactly, the value of Hamiltonian is not conserved exactly, due to the approximate error introduced by discretising. However, we will see later that this can easily be fixed using a Metropolis Hasting step. Very oftenly, there exists a critical step size, where above this value, the error of the Hamiltonian can grow without bound and below this value, the error tends to stay bounded regardless of size of L. Hence, it is important to observe the change in the Hamiltonian or the acceptance rate of the process in order to tune the size of $\epsilon$ and $L$. It is important to note that we must be able to compute the partial derivatives of the log of the density function we are interested in, and some automatic ways to do this has been proposed by: ....
+Although the volume is conserved exactly, the value of Hamiltonian is not conserved exactly, due to the approximate error introduced by discretising. However, we will see later that this can easily be fixed using a Metropolis Hasting step. Very commonly, there exists a critical step size, where above this value, the error of the Hamiltonian can grow without bound and below this value, the error tends to stay bounded regardless of size of $L$. Hence, it is important to observe the change in the Hamiltonian or the acceptance rate of the process in order to tune the size of $\epsilon$ and $L$. It is also important to note that we must be able to compute the partial derivatives of the log of the density function we are interested in, and some R packages such as RStan provide a way to do this.
 %It is important to note that the particle will tend to travel in some direction, before making a u turn to come back, 
 
 % is fact just a reformulation of Newtonian Mchanics (Newton's Laws). If we now think of 
@@ -104,8 +107,7 @@ Although the volume is conserved exactly, the value of Hamiltonian is not conser
 %Thus, we can convert our distribution $P(x)$ to a canonical distribution by setting the energy function, $E(x)$ to $-logP(x)-logZ$
 \pagebreak
 \subsection{The Hamiltonian Monte Carlo Algorithm}
-We will now present the HMC algorithm and give some intuition behind the steps. An R package for implementation of this algorithm can be found in ... 
-
+We will now present the HMC algorithm and give some intuition behind the steps. An R package includes an implementation of this algorithm.
 \begin{algorithm}
 \caption{Hamiltonian Monte Carlo}\label{euclid}
 \begin{algorithmic}[1] 
