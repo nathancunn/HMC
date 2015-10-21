@@ -29,6 +29,9 @@ WordForm <- function(word) {
 # The function to generate a dataset of random points from a distribution
 # whose probability density spells a given word
 WordPrint <- function(word,samples) {
+  # Arguments
+  # word - the word you want plotted
+  # samples - the number of data points you want simulated
   letters.key <- WordForm(word)
   # An array of the initial values for the Hamiltonian Monte Carlo
   last.h = array(0,c(nchar(word),7,2))
