@@ -17,7 +17,6 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
   d <- length(q) # Dimensions
   # The elements of p are assumed independent, hence use column sums
   if(length(M)>1){mass.vector <- colSums(M)} else mass.vector <- M
-
   N <- total.samples+burnin
   # Set a progress bar
   if(output==1) {pb <- txtProgressBar(min = 0, max = N, style = 3)}
