@@ -108,6 +108,36 @@ Use Metropolis to correct the approximation error made in Leapfrog.
 \item Negate $\mathbf{p^{*}}$ to ensure reversibility.
 \item Accept $(\mathbf{q^{*}}, \mathbf{p^{*}})$ as the next step in the Markov chain with probability M given below, otherwise accept $(\mathbf{q},\mathbf{p})$ as next state.
 \end{enumerate}
-$M=\min \{1,\exp(-H(\mathbf{q^{*}},\mathbf{p^{*}})+H(\mathbf{q},\mathbf{p}))\} = \min\{1, \exp(-U(\mathbf{q^{*}})+U(\mathbf{q})-K(\mathbf{p^{*}})+K(\mathbf{p}))\}$
+\begin{equation}
+\begin{array}{lcl}
+M &=&\min \{1,\exp(-H(\mathbf{q^{*}},\mathbf{p^{*}})+H(\mathbf{q},\mathbf{p}))\} \\ &=& \min\{1, \exp(-U(\mathbf{q^{*}})+U(\mathbf{q})-K(\mathbf{p^{*}})+K(\mathbf{p}))\}
+\end{array}
+\end{equation}
 }
+
+\frame{\frametitle{Comparison between HMC and MH}
+A total of 25 samples are simulated from a bivariate Gaussian distribution with marginal mean 0 and $\sigma=$ 1 and correlation of 0.95. \\
+HMC: $\epsilon=0.20$ and $L=25$. Rejection Rate$=0$\\
+MH: uniform proposal with $U[-0.25,0.25]$ around the current state with thinning of 25 samples. Rejection Rate$=0.4$.
+\begin{figure}[H]
+\center
+  \includegraphics[width=4in]{images/MHvsHM_explore.pdf}
+\end{figure}
+}
+\frame{\frametitle{Multivariate Gaussian (150 dimensions): HMC, MH}
+}
+\frame{\frametitle{ NUTS}
+}
+
+\frame{\frametitle{Application to letters: AbcHMC}
+Illustrative Example:
+\begin{itemize}
+\item Simulate samples from 2 dimensional densities that resemble letters of the alphabets when simulated using HMC and MH.
+\item Mixture of Gaussians is constructed automatically using EM algorithm and an image dataset for 52 letters and `!' and `?'.
+\item Same weights are assigned to each letter for a word.
+\item HMC and MH are used after choosing the gaussian using their weights.
+\item AbcHMC package can be found on Github.
+\end{itemize}
+}
+
 \end{document}
