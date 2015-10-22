@@ -138,7 +138,11 @@ HMC <- function(total.samples, q.density, M, q, epsilon, L, diff.density, burnin
   }
   samples[((burnin+1):N),]
 }
-
+# Creating a key matching the letters to their location in letter.models
+all.letters <- data.frame(key=1:54)
+for (i in 1:54){
+  all.letters$letter[i] <- letter.models[[i]]$letter
+}
 
 # A function to map letters from a word according to the key
 WordForm <- function(word) {
@@ -278,6 +282,9 @@ for (i in 1:nrow(HMC.word)) {
   points(MH.word[i,1],MH.word[i,2],col=rgb(MH.word[i,3],MH.word[i,4],MH.word[i,5]))
   Sys.sleep(0.005)
 }
+
+
+
 library(animation)
 ani.options(interval=0)
 saveGIF({
