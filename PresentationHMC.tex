@@ -1,5 +1,4 @@
 
-
 \documentclass{beamer}
 \usepackage{amsmath}
 \usepackage{algorithm}
@@ -9,7 +8,7 @@
 \usepackage{hyperref}
 
 \begin{document}
-\title{Hamiltonian Monte Carlo with Application to Letters}   
+\title{Hamiltonian Monte Carlo with Graphical Applications}   
 \author{Ho Chung Leon Law and Nathan Cunningham} 
 \institute[Universities Here and There] % (optional)
 {
@@ -23,7 +22,8 @@
 
 \section{Section no.1} 
 \frame{\frametitle{Hamiltonian Dynamics} 
-Hamiltonian dynamics is the system described by a pair of differential equations with coordinates $(\mathbf{q},\mathbf{p}) \in \mathbb{R}^{2d}$.\\ For $i=1 \dots d$,
+Hamiltonian dynamics is the system described by a pair of differential equations with coordinates $(\mathbf{q},thbf{p}) \in \mathbb{R}^{2d}$.\\ For $i=1 \dots d$,
+
 \begin{equation}
 \label{Ham1}
 \frac{dq_{i}}{dt} = \frac{\partial H}{\partial p_{i}}
@@ -32,10 +32,10 @@ Hamiltonian dynamics is the system described by a pair of differential equations
 \label{Ham2}
 \ \ \frac{dp_{i}}{dt} = -\frac{\partial H}{\partial q_{i}}
 \end{equation}
-where $H$ is called the Hamiltonian and is a function of $(\mathbf{q},\mathbf{p})$.
+where $H$ is the Hamiltonian and is a function of $(\mathbf{q},\mathbf{p})$.
 }
 \frame{ \frametitle{Target Density and Energy functions}
-Now, from statistical mechanics, given some energy function $E(x)$ in some system, we can express its canonical distribution as:
+From statistical mechanics, given some energy function $E(x)$ in some system, we can express its canonical distribution as:
 \begin{equation}
 \label{energy}
 Pr(x) = \frac{1}{N}\exp(-E(x))
@@ -103,7 +103,7 @@ Iterating over this process $L$ times simulates the dynamics for a time of $L\ep
 Use Metropolis to correct the approximation error made in Leapfrog.
 \begin{enumerate}
 \item  Select an initial $\mathbf{q}$.
-\item $\mathbf{p}\sim \mathcal{MN}(\mathbf{0},\mathbf{M})$\item Negate $\mathbf{p^{*}}$ to ensure reversibility.
+\item $\mathbf{p}\sim \mathcal{MN}(\mathbf{0},\mathbf{M})$
 \item  Given $(\mathbf{q},\mathbf{p})$, simulate Hamiltonian dynamics using the leapfrog for $L$ steps with $\epsilon$ to find $(\mathbf{q^{*}},\mathbf{p^{*}})$.
 \item Negate $\mathbf{p^{*}}$ to ensure reversibility.
 \item Accept $(\mathbf{q^{*}}, \mathbf{p^{*}})$ as the next step in the Markov chain with probability M given below, otherwise accept $(\mathbf{q},\mathbf{p})$ as next state.
@@ -115,28 +115,63 @@ M &=&\min \{1,\exp(-H(\mathbf{q^{*}},\mathbf{p^{*}})+H(\mathbf{q},\mathbf{p}))\}
 \end{equation}
 }
 
+\frame{\frametitle{}
+\begin{figure}[H]
+\center
+  \includegraphics[width=4in]{images/momentum.pdf}
+\end{figure}
+}
+
+\frame{\frametitle{}
+\begin{figure}[H]
+\center
+  \includegraphics[width=4in]{images/contours.pdf}
+\end{figure}
+}
+
 \frame{\frametitle{Comparison between HMC and MH}
-A total of 25 samples are simulated from a bivariate Gaussian distribution with marginal mean 0 and $\sigma=$ 1 and correlation of 0.95. \\
-HMC: $\epsilon=0.20$ and $L=25$. Rejection Rate$=0$\\
-MH: uniform proposal with $U[-0.25,0.25]$ around the current state with thinning of 25 samples. Rejection Rate$=0.4$.
+\begin{itemize}
+\item 25 samples simulated from a bivariate Gaussian with marginal mean $0$, $\sigma = 1$ and correlation of $0.95$
+\item HMC: $\epsilon=0.20$ and $L=25$. Rejection Rate$=0$
+\item MH: uniform proposal with $U[-0.25,0.25]$ around the current state with thinning of 25 samples. Rejection Rate$=0.4$.
+\end{itemize}
 \begin{figure}[H]
 \center
   \includegraphics[width=4in]{images/MHvsHM_explore.pdf}
 \end{figure}
 }
 \frame{\frametitle{Multivariate Gaussian (150 dimensions): HMC, MH}
-}
-\frame{\frametitle{ NUTS}
+\begin{itemize}
+\item n samples from a 150-dimensional Gaussian
+\item HMC: $\epsilon = 0.20$ and $L = 25$
+\item MH: uniform proposal with $U[-0.25,0.25]$ around the current state with thinning of 25 samples.
+\end{itemize}
+\begin{figure}[H]
+\center
+  \includegraphics[width=4in]{images/MHvsHM_varcoord.pdf}
+\end{figure}
+
 }
 
-\frame{\frametitle{Application to letters: AbcHMC}
-Illustrative Example:
+\frame{\frametitle{NUTS}
 \begin{itemize}
-\item Simulate samples from 2 dimensional densities that resemble letters of the alphabets when simulated using HMC and MH.
-\item Mixture of Gaussians is constructed automatically using EM algorithm and an image dataset for 52 letters and `!' and `?'.
-\item Same weights are assigned to each letter for a word.
-\item HMC and MH are used after choosing the gaussian using their weights.
-\item AbcHMC package can be found on Github.
+\item No U-Turn sampling modelled through $RStan$ package
+\item 150-dimensional Gaussian simulated over 5000 samples
+\end{itemize}
+\begin{figure}[H]
+\center
+  \includegraphics[width=4in]{images/NUTS_comparisons.pdf}
+\end{figure}
+
+}
+
+\frame{\frametitle{Graphical presentation: abcHMC}
+\begin{itemize}
+\item Simulate samples from 2 bivariate Gaussian mixtures whose densities represent the letters of the alphabet
+\item Mixture models fitted automatically using EM algorithm and an image dataset for 52 letters and `!' and `?'.
+\item Equal weighting on each letter of a word.
+\item Simulate from the samples using using HMC and MH.
+\item abcHMC package can be found on Github.
 \end{itemize}
 }
 
