@@ -278,4 +278,15 @@ for (i in 1:nrow(HMC.word)) {
   points(MH.word[i,1],MH.word[i,2],col=rgb(MH.word[i,3],MH.word[i,4],MH.word[i,5]))
   Sys.sleep(0.005)
 }
+library(animation)
+ani.options(interval=0)
+saveGIF({
 
+for (i in 1:nrow(HMC.word)) {
+  plot(c(HMC.word[1:i,1],MH.word[1:i,1]),c(HMC.word[1:i,2]+25,MH.word[1:i,2]),col=rgb(c(HMC.word[1:i,3],MH.word[1:i,3]),c(HMC.word[1:i,4],MH.word[1:i,4]),c(HMC.word[1:i,5],MH.word[1:i,5])),xlim = range(HMC.word[,1]),ylim = range(HMC.word[,2]*2), 
+       xlab = "",ylab = "", xaxt = "n", yaxt = "n", bty = "n")
+  text(x = mean(range(HMC.word[,1])), y = 55, labels = "Hamiltonian Monte Carlo")
+  text(x = mean(range(HMC.word[,1])), y = 5, labels = "Metropolis-Hastings")
+  abline(a = max(HMC.word[,2]), b = 0, col = rgb (0.7, 0.7, 0.7, 0.7))
+}
+}, movie.name = "presentation.gif",interval = 0, ani.width = 750, ani.height = 500)
