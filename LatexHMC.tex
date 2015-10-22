@@ -20,7 +20,7 @@
 \maketitle
 
 \begin{abstract}
-\noindent In this report we aim to examine the properties of Hamiltonian Monte Carlo, implement it in R and compare its effectiveness against other MCMC samplers. We also provide a R package that implements HMC, random walk Metropolis Hastings and also samples from a mixture of bivariate gaussians that resemble letters, which were constructed by using the EM algorithm.   
+\noindent In this report we aim to examine the properties of Hamiltonian Monte Carlo, implement it in R and compare its effectiveness against other MCMC samplers. We also provide a R package that implements HMC and also samples from a mixture of bivariate gaussians that resemble letters, which were constructed by using the EM algorithm.   
 \end{abstract}
 \newpage
 \section{Introduction}
@@ -179,7 +179,7 @@ To illustrate HMC, we constructed densities that resemble letters of the alphabe
   \includegraphics[width=5in]{images/oxwasp.pdf}
   \caption{1500 Samples of mixture of bivariate gaussians with parameters chosen by the EM algorithm, where the different colours corresponds to a different mixture of the gaussian}
 \end{figure}
-
+\section{AbcHMC R package}
 \noindent Our R package consists of 3 separate functions and one dataset.
 The dataset, $letter.models$, is stored as a list with 54 elements representing each of the 26 letters of the alphabet in upper and lower case along with the punctuation marks, ``?", and ``!". For each entry there is stored the means, covariances, and mixing proportions of the Gaussian mixture models fitted to represent this character.
 \\
